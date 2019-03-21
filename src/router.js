@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 
+import Login from './views/login/index.vue';
+import CloudOfferTool from './views/cloud-offer-tool/index.vue';
+
 Vue.use(Router)
 
 export default new Router({
@@ -12,6 +15,16 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
+    },
+    {
+      path: '/cloud-offer-tool',
+      name: 'cloud-offer-tool',
+      component: CloudOfferTool
     },
     {
       path: '/about',
