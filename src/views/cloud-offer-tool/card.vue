@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-left">
-      <el-checkbox :checked="checkedList.includes(g('主键'))" @change="handleCheckedListChange"></el-checkbox>
+      <el-checkbox :value="checked" @change="handleCheckedListChange"></el-checkbox>
     </div>
     <div class="container-right">
       <el-card class="box-card">
@@ -110,6 +110,12 @@ export default {
         }
       ]
     };
+  },
+  computed: {
+    checked() {
+      const { checkedList, g, onChange } = this;
+      return checkedList.includes(g("主键"));
+    }
   },
   methods: {
     g(k) {

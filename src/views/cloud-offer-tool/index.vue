@@ -14,8 +14,9 @@
           class="title"
         >我的云报价:{{my_cloud_offer_list.status === 'success'?my_cloud_offer_list.data.list.length:my_cloud_offer_list.status}}</p>
         <div class="btn-group">
-          <i class="el-icon-edit"></i>
-          <i class="el-icon-delete"></i>
+          <el-checkbox v-model="isAllChecked" class="checkbox">全选</el-checkbox>
+          <i @click="edit" class="el-icon-edit"></i>
+          <i @click="del" class="el-icon-delete"></i>
         </div>
       </div>
       <div class="list-container">
@@ -47,13 +48,15 @@ import {
   getMyOfferList,
   getMyCloudOfferList,
   getOfferLayout,
-  doSubmit
+  doSubmit,
+  deleteMyCloudOffer
 } from "@/apis";
 export default {
   name: "cloud-offer-tool",
   data() {
     return {
       type: "新疆棉",
+      isAllChecked: false,
       checkedList: []
     };
   },
@@ -114,6 +117,9 @@ export default {
       });
       return params;
     },
+    toggleCheckedStatus() {
+      const { isAllChecked, checkedList } = this;
+    },
     submit(params) {
       const { data } = this.layout;
       doSubmit(
@@ -124,13 +130,54 @@ export default {
         this.getMyCloudOfferList();
       });
     },
-    hadnleCheckedListChange(v){
-        console.log(v,'v');
+    hadnleCheckedListChange(v) {
+      this.checkedList = v;
+    },
+    del() {
+      if (this.checkedList.length) {
+        Promise.all(
+          this.checkedList.map(id =>
+            deleteMyCloudOffer({
+              主键: id
+            }).catch(e => true)
+          )
+        ).then(res => {
+          this.getMyCloudOfferList();
+          this.checkedList = [];
+          Message.success("删除成功");
+        });
+      }
+    },
+    edit() {
+      const { checkedList } = this;
+      if (checkedList.length > 1) {
+        Message.error("同时只能编辑一个");
+      }
+
+      if (checkedList.length === 1) {
+        alert(1);
+      }
     }
   },
   watch: {
     type(v) {
       this.getOfferLayout();
+    },
+    isAllChecked(v) {
+      const { data } = this.my_cloud_offer_list;
+      if (v) {
+        this.checkedList = data.list.map(item => item[data.key["主键"]]);
+      } else {
+        this.checkedList = [];
+      }
+    },
+    checkedList(v) {
+      const { data } = this.my_cloud_offer_list;
+      if (data.list.length === v.length) {
+        this.isAllChecked = true;
+      } else {
+        this.isAllChecked = false;
+      }
     }
   },
 
@@ -186,6 +233,14 @@ $main: #44bdf7;
       i {
         margin: 0 6px;
         cursor: pointer;
+      }
+      .checkbox {
+        color: #fff !important;
+      }
+      :global {
+        .el-checkbox__label {
+          color: #fff;
+        }
       }
     }
     .list-container {

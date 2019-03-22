@@ -1,3 +1,71 @@
+<template>
+    <div class="contion">
+
+    <div class="head-top">
+        <div class="head-left">
+                <p>欢迎来到中棉网，无差价棉花数据报价信息平台</p>
+        </div>
+        <div class="head-right">
+            <div class="isLogin" v-show="isLoginUser">
+                    <span class="mainColor">默默公司</span>
+                    <span class="approve">已认证</span>
+                    <div class="btn">退出</div>
+            </div>
+            <div>
+                <span class="mainColor">|&nbsp;企业信息&nbsp;|&nbsp;</span>
+                <span>客服咨询热线：<span class="mainColor">4008825779</span></span>
+            </div>
+        </div>
+    </div>
+     <div class="head-bottom">
+         <div>
+             <img src="../../assets/logo.png" alt="">
+         </div>
+         <div>
+                <el-input 
+                class="input"
+                 type="text"
+                placeholder="批号工厂仓库找资源找信息"
+                prefix-icon="el-icon-search"
+                v-model="allplant">
+                <span>批量</span>
+              </el-input>
+         </div>
+     </div>
+</div>
+</template>
+
+<script>
+import { mapState } from "vuex";
+    
+    //this.data.user.data;
+    export default {
+        data(){
+            return{
+                allplant:"",
+                isLoginUser:false,
+            }
+        },
+        computed: {
+           ...mapState({
+            user: state => state.data.user,
+           })
+        },
+        methods: {
+            isLogins(){
+            if(this.user.status === "success"){
+                this.isLoginUser = true; 
+            }           
+            else{
+                this.isLoginUser = false;
+            }      
+            }
+        },
+        created() {
+            this.isLogins()
+        },
+    }
+</script>
 <style scoped lang="scss">
     .contion {
         font-size: 14px;
@@ -49,72 +117,7 @@
       
      }
     }     
-</style>
-<template>
-    <div class="contion">
-
-    <div class="head-top">
-        <div class="head-left">
-                <p>欢迎来到中棉网，无差价棉花数据报价信息平台</p>
-        </div>
-        <div class="head-right">
-            <div class="isLogin" v-show="isLoginUser">
-                    <span class="mainColor">默默公司</span>
-                    <span class="approve">已认证</span>
-                    <div class="btn">退出</div>
-            </div>
-            <div>
-                <span class="mainColor">|&nbsp;企业信息&nbsp;|&nbsp;</span>
-                <span>客服咨询热线：<span class="mainColor">4008825779</span></span>
-            </div>
-        </div>
-    </div>
-     <div class="head-bottom">
-         <div>
-             <img src="../../assets/logo.png" alt="">
-         </div>
-         <div>
-                <el-input width="200px"
-                 type="text"
-                placeholder="批号工厂仓库找资源找信息"
-                prefix-icon="el-icon-search"
-                v-model="allplant">
-                <span>批量</span>
-              </el-input>
-         </div>
-     </div>
-</div>
-</template>
-
-<script>
-import { mapState } from "vuex";
-    
-    //this.data.user.data;
-    export default {
-        data(){
-            return{
-                allplant:"",
-                isLoginUser:false,
-            }
-        },
-        computed: {
-           ...mapState({
-            user: state => state.data.user,
-           })
-        },
-        methods: {
-            isLogins(){
-            if(this.user.status === "success"){
-                this.isLoginUser = true; 
-            }           
-            else{
-                this.isLoginUser = false;
-            }      
-            }
-        },
-        created() {
-            this.isLogins()
-            console.log(this.user.status,'狗邰')            
-        },
+    .input{
+        width: 400px;
     }
-</script>
+</style>

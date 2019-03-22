@@ -126,7 +126,7 @@ const base = (type, url, params, config) => {
                         message: msg,
                         type: 'error'
                     });
-                    reject(d);
+                    reject(msg);
                 }
             })
             .catch(e => {
