@@ -3,12 +3,12 @@
     <div class="content">
       <div class="qr" id="login_container"></div>
     </div>
-    <Footer/>
+    <AppFooter/>
   </div>
 </template>
 
 <script>
-import Footer from "@/components/footer.vue";
+import AppFooter from "@/components/app-footer.vue";
 export default {
   name: "login",
   created() {},
@@ -33,7 +33,7 @@ export default {
     }
   },
   components: {
-    Footer
+    AppFooter
   }
 };
 </script>

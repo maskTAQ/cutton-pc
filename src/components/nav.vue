@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <ul>
-      <li v-for="item in navList" :key="item" :class="{ active: item.path === path }">
+      <li v-for="item in navList" :key="item.path" :class="{ active: item.path === path }">
         <router-link :to="item">{{item.label}}</router-link>
         <div class="border"></div>
       </li>
@@ -10,7 +10,7 @@
 </template>
   <script>
 export default {
-  name: "footer",
+  name: "app-nav",
   data() {
     return {
       navList: [
@@ -32,10 +32,6 @@ export default {
     path() {
       return this.$route.path;
     }
-  },
-  created() {
-    //const { path } = this.$route;
-    console.log(this.path, "this");
   }
 };
 </script>
