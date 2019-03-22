@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <Header></Header>
     <Nav/>
     <div class="app-container">
       <div class="app-content">
@@ -10,9 +11,10 @@
 </template>
 <script>
 import Nav from "@/components/nav.vue";
+import Header from '@/components/public/head.vue'
 export default {
   components: {
-    Nav
+    Nav,Header
   }
 };
 </script>
