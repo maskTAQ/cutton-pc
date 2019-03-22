@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-left">
-      <el-checkbox size="medium"></el-checkbox>
+      <el-checkbox :checked="checkedList.includes(g('主键'))" @change="handleCheckedListChange"></el-checkbox>
     </div>
     <div class="container-right">
       <el-card class="box-card">
@@ -30,19 +30,54 @@
             <p class="value">{{g(item.key)}}</p>
           </div>
         </div>
+
+        <div class="bottom">
+          <div class="bottom-left">
+            <div class="bottom-text-box">
+              <p class="bottom-text">仓库:{{g('交货仓库或方式')}}</p>
+            </div>
+            <div class="bottom-text-box">
+              <p class="bottom-text">{{g('基差类型')}}</p>
+            </div>
+            <div class="bottom-text-box">
+              <p class="bottom-text">基 差:(+{{g('基差值')}})</p>
+            </div>
+          </div>
+          <div class="bottom-right">
+            <div class="bottom-text-box">
+              <p class="bottom-text">卖家:{{g('供应商')}}</p>
+            </div>
+            <div class="bottom-right-bottom">
+              <div class="bottom-right-bottom-left">
+                <p class="price">￥{{g('报价')}}</p>
+                <p class="weight">{{g('重量')}}</p>
+              </div>
+              <div class="btn-group">
+                <div class="btn" @click="handleClickShoppingCar( g('主键'))">
+                  <div class="item-icon-box">
+                    <img class="btn-icon" :src="carIcon">
+                  </div>
+
+                  <p class="btn-text">购物车</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </el-card>
     </div>
   </div>
 </template>
 <script>
+import update from "immutability-helper";
+import carIcon from "@/assets/car.png";
 export default {
-  props: ["data", "map"],
+  props: ["data", "map", "checkedList", "onChange"],
   name: "card-item",
-  created() {
-    console.log(this.data, "data");
-  },
   data() {
     return {
+      carIcon,
+
       list: [
         { label: "等级", key: "颜色级" },
         { label: "长度", key: "长度" },
@@ -80,6 +115,23 @@ export default {
     g(k) {
       const { map, data } = this;
       return data[map[k]] || "-";
+    },
+    handleCheckedListChange() {
+      const { checkedList, g, onChange } = this;
+      const i = checkedList.indexOf(g("主键"));
+      if (i > -1) {
+        onChange(
+          update(checkedList, {
+            $splice: [[i, 1]]
+          })
+        );
+      } else {
+        onChange(
+          update(checkedList, {
+            $push: [g("主键")]
+          })
+        );
+      }
     }
   }
 };
@@ -89,6 +141,7 @@ $main: #44bdf7;
 .container {
   display: flex;
   flex-direction: row;
+  margin-bottom: 10px;
   .container-left {
     width: 30px;
     text-align: center;
@@ -149,6 +202,31 @@ $main: #44bdf7;
     flex-direction: column;
     justify-content: space-between;
   }
+  .center-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .tag {
+      height: 22px;
+      padding: 0 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 15px;
+      background: red;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .xh {
+      background: #1cbb24;
+    }
+
+    .cd {
+      background: #3cbaf7;
+    }
+  }
 }
 .desc-item {
   display: flex;
@@ -161,5 +239,88 @@ $main: #44bdf7;
     font-size: 14px;
     color: #ccc;
   }
+}
+
+.bottom {
+  display: flex;
+  flex-direction: row;
+}
+
+.bottom-left,
+.bottom-right {
+  flex: 1;
+}
+
+.bottom-text-box {
+  height: 25px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.bottom-text {
+  font-size: 15px;
+  color: #000;
+}
+
+.bottom-right-bottom {
+  height: 43px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.bottom-right-bottom-right {
+  display: flex;
+  flex-direction: row;
+}
+
+.bottom-right-bottom-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.price {
+  font-size: 16px;
+  color: #bc0000;
+}
+
+.weight {
+  font-size: 16px;
+  color: #32b9fa;
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.item-icon-box {
+  margin-bottom: 10px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #32b9fa;
+}
+
+.btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-text {
+  font-size: 12px;
+  color: #000;
 }
 </style>

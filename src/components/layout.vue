@@ -36,12 +36,19 @@
                 </el-select>
 
                 <el-radio-group
-                  v-if="component.type === 'radio'"
+                  v-if="['radio','radiorect'].includes(component.type)"
                   :key="component.label || componentI"
                   v-model="params[component.param]"
                 >
                   <el-radio v-for="item in component.content" :label="item" :key="item">{{item}}</el-radio>
                 </el-radio-group>
+                <el-checkbox-group
+                  v-if="['check','checkcircle'].includes(component.type)"
+                  :key="component.label || componentI"
+                  v-model="params[component.param]"
+                >
+                  <el-checkbox v-for="item in component.content" :label="item" :key="item"></el-checkbox>
+                </el-checkbox-group>
                 <p
                   v-if="component.type === 'text'"
                   :key="component.label || componentI"
@@ -77,8 +84,12 @@ export default {
       this.data.param.forEach(area => {
         area.data.forEach(filed => {
           filed.components.forEach(component => {
-            const { param, value } = component;
-            p[param] = value;
+            const { param, value, type } = component;
+            if (type.includes("check")) {
+              p[param] = value || [];
+            } else {
+              p[param] = value;
+            }
           });
         });
       });

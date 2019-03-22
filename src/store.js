@@ -18,7 +18,7 @@ store.data.forEach(key => {
 INITIAL_DATA.user = {
   loading: false,
   status: 'success',
-  data:{id:4}
+  data: { id: 4, auth: true }
 }
 store.layout.forEach(key => {
   INITIAL_LAYOUT[key] = INITIAL;

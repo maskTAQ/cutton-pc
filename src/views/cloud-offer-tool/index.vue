@@ -9,7 +9,15 @@
       </StatusBox>
     </div>
     <div class="right">
-      <p class="title">我的云报价</p>
+      <div class="header">
+        <p
+          class="title"
+        >我的云报价:{{my_cloud_offer_list.status === 'success'?my_cloud_offer_list.data.list.length:my_cloud_offer_list.status}}</p>
+        <div class="btn-group">
+          <i class="el-icon-edit"></i>
+          <i class="el-icon-delete"></i>
+        </div>
+      </div>
       <div class="list-container">
         <ListWrapper :data="my_cloud_offer_list">
           <template v-if="my_cloud_offer_list.status === 'success'">
@@ -18,6 +26,8 @@
               :key="data.id"
               :data="data"
               :map="my_cloud_offer_list.data.key"
+              :checkedList="checkedList"
+              :onChange="hadnleCheckedListChange"
             />
           </template>
         </ListWrapper>
@@ -43,7 +53,8 @@ export default {
   name: "cloud-offer-tool",
   data() {
     return {
-      type: "新疆棉"
+      type: "新疆棉",
+      checkedList: []
     };
   },
   created() {
@@ -112,6 +123,9 @@ export default {
         Message.success("发布成功");
         this.getMyCloudOfferList();
       });
+    },
+    hadnleCheckedListChange(v){
+        console.log(v,'v');
     }
   },
   watch: {
@@ -148,20 +162,36 @@ $main: #44bdf7;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    .title {
-      margin-top: 0;
+    .header {
       width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      padding: 0 15px;
+      background: $main;
+    }
+    .title {
       height: 50px;
       line-height: 50px;
-      text-indent: 10px;
-      background: $main;
+
       color: #fff;
       padding: 0;
     }
-    .list-container{
-        height: 100%;
-        padding-bottom: 50px;
-        overflow: auto;
+    .btn-group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      color: #fff;
+      font-size: 18px;
+      i {
+        margin: 0 6px;
+        cursor: pointer;
+      }
+    }
+    .list-container {
+      height: 100%;
+      padding-bottom: 50px;
+      overflow: auto;
     }
   }
 }
