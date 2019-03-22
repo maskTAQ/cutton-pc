@@ -1,11 +1,14 @@
 <template>
   <div id="app">
     <Nav/>
-    <router-view/>
+    <div class="app-container">
+      <div class="app-content">
+        <router-view/>
+      </div>
+    </div>
   </div>
 </template>
 <script>
-
 import Nav from "@/components/nav.vue";
 export default {
   components: {
@@ -13,6 +16,18 @@ export default {
   }
 };
 </script>
-<style lang="scss">
 
+<style lang="scss" scoped>
+#app {
+  height: 100%;
+}
+.app-container {
+  height: 100%;
+  padding-bottom: 40px;
+  overflow: hidden;
+  .app-content {
+    height: 100%;
+    overflow: hidden;
+  }
+}
 </style>

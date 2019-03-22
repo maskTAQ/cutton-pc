@@ -5,15 +5,16 @@
 
       <div class="area-content">
         <div
-          :class="{'field-column':field.layout==='column','field-row':field.layout==='row'}"
+          :class="{'field-row':isShowField(field.visible)}"
           v-for="(field,fidldI) in area.data"
           :key="field.title||fidldI"
         >
           <template class v-if="isShowField(field.visible)">
-            <p class="field-title">{{field.title}}</p>
+            <p class="field-label" v-if="field.title">{{field.title}}</p>
             <div class="field-content">
               <template v-for="(component,componentI) in field.components">
                 <input
+                  class="input"
                   v-if="component.type === 'input'"
                   :key="component.content || componentI"
                   v-model="params[component.param]"
@@ -53,7 +54,7 @@
         </div>
       </div>
     </div>
-    <el-button type="primary" :loading="false" @click="submit">下一步</el-button>
+    <el-button class="button" type="primary" :loading="false" @click="submit">下一步</el-button>
   </div>
 </template>
 <script>
@@ -69,9 +70,7 @@ export default {
     this.initParams();
   },
 
-  watch: {
-    
-  },
+  watch: {},
   methods: {
     initParams() {
       const p = {};
@@ -132,15 +131,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../platform.scss";
-.input {
-  flex: 1;
+.container {
   height: 100%;
-  font-size: 28px;
-  color: #000;
+  padding-bottom: 100px;
+  overflow: auto;
 }
-
 .area-title {
-  padding-left: 20px;
+  //padding-left: 20px;
   height: 60px;
   line-height: 60px;
   font-size: 20px;
@@ -150,14 +147,16 @@ export default {
 .field-column {
   @extend .flex;
   flex-direction: column;
-  padding: 0 20px;
+
   background: #fff;
 }
 .field-row {
+  height: 50px;
   @extend .flex;
   flex-direction: row;
   align-items: center;
-  padding: 0 20px;
+  padding-right: 15px;
+  //padding: 0 20px;
   @include borderD(bottom, 1px, solid, #ccc);
 }
 .field-title {
@@ -166,14 +165,9 @@ export default {
 }
 
 .field-label {
+  width: 70px;
   margin-right: 10px;
-  @extend .flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.field-label-text {
-  font-size: 28px;
+  font-size: 14px;
   color: #000;
 }
 
@@ -185,31 +179,29 @@ export default {
   align-items: center;
 }
 
-.layout-row {
-  @extend .flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-.layout-column {
-  @extend .flex;
-  flex-direction: column;
-}
-
 .field-content {
   flex: 1;
   @extend .flex;
   flex-direction: row;
   align-items: center;
 }
-.label-content {
-  @extend .flex;
-  flex-direction: column;
-  justify-content: center;
+.el-select {
+  margin-right: 10px;
+}
+.input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
 }
 .text {
   height: 100%;
   font-size: 14px;
   color: #000;
+}
+
+.button {
+  margin: 20px 0;
+  width: 100%;
 }
 </style>

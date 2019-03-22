@@ -10,16 +10,18 @@
     </div>
     <div class="right">
       <p class="title">我的云报价</p>
-      <ListWrapper :data="my_cloud_offer_list">
-        <template v-if="my_cloud_offer_list.status === 'success'">
-          <CardItem
-            v-for="data in my_cloud_offer_list.data.list"
-            :key="data.id"
-            :data="data"
-            :map="my_cloud_offer_list.data.key"
-          />
-        </template>
-      </ListWrapper>
+      <div class="list-container">
+        <ListWrapper :data="my_cloud_offer_list">
+          <template v-if="my_cloud_offer_list.status === 'success'">
+            <CardItem
+              v-for="data in my_cloud_offer_list.data.list"
+              :key="data.id"
+              :data="data"
+              :map="my_cloud_offer_list.data.key"
+            />
+          </template>
+        </ListWrapper>
+      </div>
     </div>
   </div>
 </template>
@@ -54,7 +56,7 @@ export default {
       my_cloud_offer_list: state => state.data.my_cloud_offer_list,
       data: state => state.data,
       layouts: state => state.layout,
-      tabList: state => [...state.productTypes].splice(0, 4)
+      tabList: state => state.productTypes
     }),
     layout() {
       const { type, layouts } = this;
@@ -129,17 +131,20 @@ export default {
 <style lang="scss" scoped>
 $main: #44bdf7;
 .content {
-  margin: 0 auto;
-  width: 1000px;
-  
+  padding: 0 20px;
+  height: 100%;
   display: flex;
   flex-direction: row;
+  background: #fff;
   .left {
     flex: 1;
     border-right: 1px solid #ccc;
+    background: #fff;
   }
   .right {
     width: 400px;
+    height: 100%;
+    overflow: auto;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -152,6 +157,11 @@ $main: #44bdf7;
       background: $main;
       color: #fff;
       padding: 0;
+    }
+    .list-container{
+        height: 100%;
+        padding-bottom: 50px;
+        overflow: auto;
     }
   }
 }
