@@ -6,23 +6,24 @@
       <div class="area-content">
         <div
           :class="{'field-column':field.layout==='column','field-row':field.layout==='row'}"
-          v-for="field in area.data"
-          :key="field.title"
+          v-for="(field,fidldI) in area.data"
+          :key="field.title||fidldI"
         >
-          <template class v-if="isShowField(field.visible)&&field.layout==='row'">
+          <template class v-if="isShowField(field.visible)">
             <p class="field-title">{{field.title}}</p>
             <div class="field-content">
-              <template v-for="component in field.components">
+              <template v-for="(component,componentI) in field.components">
                 <input
                   v-if="component.type === 'input'"
-                  :key="component.label"
+                  :key="component.label || componentI"
                   v-model="params[component.param]"
                   :placeholder="component.content"
                 >
                 <el-select
                   v-if="component.type === 'select'"
-                  :key="component.label"
+                  :key="component.label || componentI"
                   v-model="params[component.param]"
+                  change="onChange(component.param)"
                   :placeholder="component.placeholder"
                 >
                   <el-option
@@ -35,15 +36,14 @@
 
                 <el-radio-group
                   v-if="component.type === 'radio'"
-                  :key="component.label"
+                  :key="component.label || componentI"
                   v-model="params[component.param]"
-                  
                 >
                   <el-radio v-for="item in component.content" :label="item" :key="item">{{item}}</el-radio>
                 </el-radio-group>
                 <p
                   v-if="component.type === 'text'"
-                  :key="component.label"
+                  :key="component.label || componentI"
                   :placeholder="component.placeholder"
                   class="text"
                 >{{component.content}}</p>
@@ -62,7 +62,9 @@ export default {
   props: ["data", "onSubmit"],
   data() {
     return {
-      params: {}
+      params: {
+        报价类型: "一口价"
+      }
     };
   },
   created() {
@@ -72,7 +74,7 @@ export default {
       area.data.forEach(filed => {
         filed.components.forEach(component => {
           const { param, value } = component;
-          this.params[param] = value;
+          value && (this.params[param] = value);
         });
       });
     });
@@ -122,6 +124,9 @@ export default {
     submit() {
       const { params, onSubmit } = this;
       onSubmit(params);
+    },
+    onChange(...v) {
+      console.log(v, "change");
     }
   }
 };
