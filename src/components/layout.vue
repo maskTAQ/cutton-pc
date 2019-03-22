@@ -15,7 +15,7 @@
               <template v-for="(component,componentI) in field.components">
                 <input
                   v-if="component.type === 'input'"
-                  :key="component.label || componentI"
+                  :key="component.content || componentI"
                   v-model="params[component.param]"
                   :placeholder="component.content"
                 >
@@ -53,7 +53,7 @@
         </div>
       </div>
     </div>
-    <el-button type="primary" :loading="false" @click="submit">发布</el-button>
+    <el-button type="primary" :loading="false" @click="submit">下一步</el-button>
   </div>
 </template>
 <script>
@@ -62,30 +62,29 @@ export default {
   props: ["data", "onSubmit"],
   data() {
     return {
-      params: {
-        报价类型: "一口价"
-      }
+      params: {}
     };
   },
   created() {
-    this.computedLayoutValue();
-
-    this.data.param.forEach(area => {
-      area.data.forEach(filed => {
-        filed.components.forEach(component => {
-          const { param, value } = component;
-          value && (this.params[param] = value);
-        });
-      });
-    });
+    this.initParams();
   },
 
   watch: {
-    params(p) {
-      this.computedLayoutValue();
-    }
+    
   },
   methods: {
+    initParams() {
+      const p = {};
+      this.data.param.forEach(area => {
+        area.data.forEach(filed => {
+          filed.components.forEach(component => {
+            const { param, value } = component;
+            p[param] = value;
+          });
+        });
+      });
+      this.params = p;
+    },
     computedLayoutValue() {
       this.layout = this.data.param.map(area => {
         const data = area.data.filter(filed => {

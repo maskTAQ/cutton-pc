@@ -9,9 +9,15 @@
       </StatusBox>
     </div>
     <div class="right">
-      <ListWrapper :data="my_offer_list">
-        <template v-if="my_offer_list.status === 'success'">
-          <CardItem v-for="data in my_offer_list.data.list" :key="data.id" :data="data"/>
+      <p class="title">我的云报价</p>
+      <ListWrapper :data="my_cloud_offer_list">
+        <template v-if="my_cloud_offer_list.status === 'success'">
+          <CardItem
+            v-for="data in my_cloud_offer_list.data.list"
+            :key="data.id"
+            :data="data"
+            :map="my_cloud_offer_list.data.key"
+          />
         </template>
       </ListWrapper>
     </div>
@@ -20,11 +26,17 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+import { Message } from "element-ui";
 import ListWrapper from "@/components/list-wrapper.vue";
 import StatusBox from "@/components/status-box.vue";
 import Layout from "@/components/layout.vue";
 import CardItem from "./card";
-import { getMyOfferList, getOfferLayout, doSubmit } from "@/apis";
+import {
+  getMyOfferList,
+  getMyCloudOfferList,
+  getOfferLayout,
+  doSubmit
+} from "@/apis";
 export default {
   name: "cloud-offer-tool",
   data() {
@@ -33,13 +45,13 @@ export default {
     };
   },
   created() {
-    this.getMyOfferList();
+    this.getMyCloudOfferList();
     this.getOfferLayout();
   },
 
   computed: {
     ...mapState({
-      my_offer_list: state => state.data.my_offer_list,
+      my_cloud_offer_list: state => state.data.my_cloud_offer_list,
       data: state => state.data,
       layouts: state => state.layout,
       tabList: state => [...state.productTypes].splice(0, 4)
@@ -64,17 +76,17 @@ export default {
         });
       }
     },
-    getMyOfferList() {
+    getMyCloudOfferList() {
+      const { id } = this.data.user.data;
       //获取我的报价
       this.asyncActionWrapper({
-        call: getMyOfferList,
-        params: { 用户ID: "4" },
+        call: getMyCloudOfferList,
+        params: { 用户ID: id },
         type: "data",
-        key: `my_offer_list`
+        key: `my_cloud_offer_list`
       });
     },
     getPreValue(data) {
-      console.log(data, "data");
       const { id } = this.data.user.data;
       const params = {
         用户ID: id
@@ -90,19 +102,13 @@ export default {
       return params;
     },
     submit(params) {
-      //alert(123)
       const { data } = this.layout;
       doSubmit(
         data.do,
         Object.assign(this.getPreValue(data), params, data.carry)
       ).then(res => {
-        //Tip.success("操作成功");
-        // asyncActionWrapper({
-        //   call: getOfferList,
-        //   params: navParams,
-        //   type: "data",
-        //   key: `offer_list_${navParams.type}`
-        // });
+        Message.success("发布成功");
+        this.getMyCloudOfferList();
       });
     }
   },
@@ -121,13 +127,32 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+$main: #44bdf7;
 .content {
-  padding: 20px 15px;
+  margin: 0 auto;
+  width: 1000px;
+  
   display: flex;
   flex-direction: row;
   .left {
     flex: 1;
     border-right: 1px solid #ccc;
+  }
+  .right {
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    .title {
+      margin-top: 0;
+      width: 100%;
+      height: 50px;
+      line-height: 50px;
+      text-indent: 10px;
+      background: $main;
+      color: #fff;
+      padding: 0;
+    }
   }
 }
 </style>

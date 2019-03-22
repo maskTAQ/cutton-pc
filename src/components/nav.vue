@@ -38,31 +38,32 @@ export default {
   <style lang="scss" scoped>
 .container {
   height: 40px;
-  background: #fff;
+  background: #2da22e;
   border-bottom: 1px solid #ccc;
   ul {
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     li {
-      height: 30px;
-      line-height: 30px;
+      height: 40px;
+      line-height: 40px;
       margin: 0 10px;
-      font-size: 14px;
-      color: #000;
+
       position: relative;
       padding: 0 20px;
       display: flex;
 
       a {
         text-decoration: none;
-        color: #8595b6;
+        color: #ccc;
         transition: all 1s;
       }
       &.active,
       &:hover {
         a {
-          color: #18347a;
+          color: #fff;
         }
         .border {
           opacity: 1;
@@ -75,7 +76,7 @@ export default {
         height: 3px;
         bottom: 0;
         left: 20%;
-        background: #18347a;
+        background: #fff;
         border-radius: 4px;
         transition: all 1s;
       }
