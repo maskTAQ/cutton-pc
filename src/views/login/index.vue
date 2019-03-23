@@ -19,7 +19,6 @@ export default {
   methods: {
     renderQr() {
       if (typeof WxLogin !== "undefined") {
-        console.log(WxLogin, "WxLogin");
         var obj = new WxLogin({
           id: "login_container",
           appid: "wxbdc5610cc59c1631",

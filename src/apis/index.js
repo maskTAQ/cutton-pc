@@ -87,6 +87,11 @@ export function deleteMyOffer(params) {
 export function deleteMyCloudOffer(params) {
     return get('CloudQuoteDelete', params);
 }
+
+//获取excel数据
+export function getExcel(params) {
+    return get('PCUpdateGetExcel', params);
+}
 export {
     login
 }

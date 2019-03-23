@@ -49,6 +49,19 @@
                 >
                   <el-checkbox v-for="item in component.content" :label="item" :key="item"></el-checkbox>
                 </el-checkbox-group>
+                <el-upload
+                  v-if="component.type === 'input-file'"
+                  :key="component.label || componentI"
+                  :name="component.param"
+                  class="upload-box"
+                  :action="component.url"
+                  :multiple="false"
+                  :before-upload="beforeUpload"
+                  :on-error="onUploadError"
+                  :on-success="onUploadSuccess"
+                >
+                  <el-button size="small" type="text">点击上传</el-button>
+                </el-upload>
                 <p
                   v-if="component.type === 'text'"
                   :key="component.label || componentI"
@@ -77,7 +90,12 @@ export default {
     this.initParams();
   },
 
-  watch: {},
+ 
+  computed: {
+    a() {
+      return this.params;
+    }
+  },
   methods: {
     initParams() {
       const p = {};
@@ -134,9 +152,23 @@ export default {
       const { params, onSubmit } = this;
       onSubmit(params);
     },
-    onChange(...v) {
-      console.log(v, "change");
-    }
+   
+    beforeUpload(file) {
+      const { name = "", type } = file;
+      const isJPG = name.includes("xls");
+
+      if (!isJPG) {
+        this.$message.error("只能上传xls格式的文件");
+      }
+
+      return isJPG;
+    },
+    onUploadError(...v){
+      this.$message.error("上传失败");
+    },
+    onUploadSuccess(...v){
+      this.$message.success("上传成功");
+    },
   }
 };
 </script>
@@ -210,7 +242,11 @@ export default {
   font-size: 14px;
   color: #000;
 }
-
+.upload-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
 .button {
   margin: 20px 0;
   width: 100%;

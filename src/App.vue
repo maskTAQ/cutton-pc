@@ -22,11 +22,12 @@ export default {
 <style lang="scss" scoped>
 #app {
   height: 100%;
+    overflow: hidden;
 }
 .app-container {
-  height: 100%;
-  padding-bottom: 40px;
-  overflow: hidden;
+      height: 100%;
+    padding-bottom: 130px;
+    overflow: hidden;
   .app-content {
     height: 100%;
     overflow: hidden;

@@ -7,8 +7,10 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@handsontable/vue": "^4.0.0",
     "axios": "^0.18.0",
     "element-ui": "^2.6.3",
+    "handsontable": "^7.0.0",
     "immutability-helper": "^3.0.0",
     "iview": "^3.3.3",
     "qs": "^6.6.0",
