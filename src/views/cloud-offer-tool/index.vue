@@ -74,6 +74,7 @@ import { Message } from "element-ui";
 import ListWrapper from "@/components/list-wrapper.vue";
 import StatusBox from "@/components/status-box.vue";
 import Layout from "@/components/layout.vue";
+
 import CardItem from "./card";
 import {
   getMyCloudOfferList,
@@ -83,6 +84,7 @@ import {
   getSpotIndicators,
   getExcel
 } from "@/apis";
+import { send } from "@/apis/ws";
 export default {
   name: "cloud-offer-tool",
   data() {
@@ -170,12 +172,26 @@ export default {
       //     this.getMyCloudOfferList();
       //   });
       const { params } = this.$refs.layout;
+      const loading = this.$loading({
+        lock: true,
+        text: "验证批号中...",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
+      });
+      
+      send(params["批号"]).then(res => {
+        this.isShowExecl = true;
+        console.log(res,"ad");
+        loading.close();
+      })
+      .catch(e=>{
+        loading.close();
+      })
       // if (!params["批号"]) {
       //   Message.error("请输入批号");
       // } else {
       //   this.isShowExecl = true;
       // }
-      this.isShowExecl = true;
     },
     afterChange(changes) {
       changes &&

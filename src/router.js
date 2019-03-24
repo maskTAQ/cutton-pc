@@ -4,7 +4,7 @@ import Home from './views/Home.vue'
 
 import Login from './views/login/index.vue';
 import CloudOfferTool from './views/cloud-offer-tool/index.vue';
-import Auth from './views/auth.vue';
+import Auth from './views/auth';
 
 Vue.use(Router)
 

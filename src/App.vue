@@ -11,10 +11,11 @@
 </template>
 <script>
 import Nav from "@/components/nav.vue";
-import Header from '@/components/public/head.vue'
+import Header from "@/components/public/head.vue";
 export default {
   components: {
-    Nav,Header
+    Nav,
+    Header
   }
 };
 </script>
@@ -22,12 +23,12 @@ export default {
 <style lang="scss" scoped>
 #app {
   height: 100%;
-    overflow: hidden;
+  // overflow: hidden;
 }
 .app-container {
-      height: 100%;
-    padding-bottom: 130px;
-    /* overflow: hidden; */
+  height: 100%;
+  padding-bottom: 130px;
+  /* overflow: hidden; */
   .app-content {
     height: 100%;
     /* overflow: hidden; */

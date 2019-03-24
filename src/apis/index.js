@@ -92,9 +92,10 @@ export function deleteMyCloudOffer(params) {
 export function getExcel(params) {
     return get('PCUpdateGetExcel', params);
 }
-//认证接口 
-export function auth(params) {
-    return get('ruzhu', params);
+
+//认证企业信息 
+export function authInfo(params) {
+    return get('ruzhu',params);
 }
 export {
     login
