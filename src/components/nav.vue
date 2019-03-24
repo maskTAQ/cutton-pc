@@ -15,7 +15,8 @@ export default {
     return {
       navList: [
         { label: "首页", path: "/" },
-        { label: "云报价工具", path: "/cloud-offer-tool" }
+        { label: "云报价工具", path: "/cloud-offer-tool" },
+        { label: "认证信息", path: "/auth" }
         // "棉花超时",
         // "云报价工具",
         // "智能供需",

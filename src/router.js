@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 
 import Login from './views/login/index.vue';
 import CloudOfferTool from './views/cloud-offer-tool/index.vue';
+import Auth from './views/auth.vue';
 
 Vue.use(Router)
 
@@ -25,6 +26,11 @@ export default new Router({
       path: '/cloud-offer-tool',
       name: 'cloud-offer-tool',
       component: CloudOfferTool
+    },
+    {
+      path: '/auth',
+      name: 'auth',
+      component: Auth
     },
     {
       path: '/about',

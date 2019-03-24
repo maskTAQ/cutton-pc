@@ -118,13 +118,14 @@ export default {
   methods: {
     ...mapActions(["asyncActionWrapper"]),
     getOfferLayout() {
+      const { id } = this.data.user.data;
       const { type, tabList, layouts } = this;
       const key = `offer_${type}`;
       const { status } = layouts[key];
       if (status !== "success" && status !== "loading") {
         this.asyncActionWrapper({
           call: getOfferLayout,
-          params: { 棉花云报价类型: tabList.indexOf(type) + 1 },
+          params: { 棉花云报价类型: tabList.indexOf(type) + 1,'用户ID':id },
           type: "layout",
           key
         });
@@ -233,10 +234,12 @@ export default {
       }
     },
     getExeclData() {
+      const {id} = this.data.user.data;
       const { params } = this.$refs.layout;
       this.loading = true;
       getExcel({
         //加工批号: "62044171101" || params["批号"],
+        '用户ID':id,
         ...params
       })
         .then(res => {
