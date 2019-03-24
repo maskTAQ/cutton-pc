@@ -234,12 +234,14 @@ export default {
       }
     },
     getExeclData() {
+       const { data } = this.layout;
       const {id} = this.data.user.data;
       const { params } = this.$refs.layout;
       this.loading = true;
       getExcel({
         //加工批号: "62044171101" || params["批号"],
         '用户ID':id,
+        ...data.carry,
         ...params
       })
         .then(res => {
