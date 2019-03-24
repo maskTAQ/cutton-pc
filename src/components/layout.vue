@@ -53,6 +53,7 @@
                   v-if="component.type === 'input-file'"
                   :key="component.label || componentI"
                   :name="component.param"
+                  :data="updataParams"
                   class="upload-box"
                   :action="component.url"
                   :multiple="false"
@@ -79,10 +80,12 @@
 </template>
 <script>
 import { getOfferList } from "@/apis";
+import { commonParmas } from "@/apis/base.js";
 export default {
   props: ["data", "onSubmit"],
   data() {
     return {
+      system: commonParmas,
       params: {}
     };
   },
@@ -90,10 +93,14 @@ export default {
     this.initParams();
   },
 
- 
   computed: {
     a() {
       return this.params;
+    },
+    updataParams() {
+      const { system } = this;
+      const { carry } = this.data;
+      return { ...carry, ...system };
     }
   },
   methods: {
@@ -152,7 +159,7 @@ export default {
       const { params, onSubmit } = this;
       onSubmit(params);
     },
-   
+
     beforeUpload(file) {
       const { name = "", type } = file;
       const isJPG = name.includes("xls");
@@ -163,12 +170,14 @@ export default {
 
       return isJPG;
     },
-    onUploadError(...v){
+    onUploadError(...v) {
       this.$message.error("上传失败");
     },
-    onUploadSuccess(...v){
+    onUploadSuccess(res) {
+      const { code, data, message } = res;
+      this.params = { ...this.params, ...data };
       this.$message.success("上传成功");
-    },
+    }
   }
 };
 </script>

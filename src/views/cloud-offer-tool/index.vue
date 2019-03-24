@@ -42,22 +42,23 @@
       </div>
     </div>
     <div class="execl-content" v-show="isShowExecl" v-loading="loading">
-      <div>
-        <div class="btn-group">
-          <el-button type="text" @click="download">下载到本地</el-button>
-          <el-button type="text" @click="prevStep">上一步</el-button>
-          <el-button type="text" @click="submit">同步发布到中棉信息网中</el-button>
-          <el-button type="text" @click="replaceStore">批量替换仓库</el-button>
-          <el-checkbox v-model="isAllHotTableChecked" type="text">全选</el-checkbox>
-        </div>
+      <div class="btn-group">
+        <el-button type="text" @click="download">下载到本地</el-button>
+        <el-button type="text" @click="prevStep">上一步</el-button>
+        <el-button type="text" @click="submit">同步发布到中棉信息网中</el-button>
+        <el-button type="text" @click="replaceStore">批量替换仓库</el-button>
+        <el-checkbox v-model="isAllHotTableChecked" type="text">全选</el-checkbox>
+      </div>
+      <div class="excel-box">
         <hot-table
           :data="tableData"
           :colHeaders="colHeaders"
           :rowHeaders="true"
           :columns="columns"
-          :Sorting="true"
+          :columnSorting="true"
           :observeChanges="true"
           width="100%"
+          height="100%"
           ref="hotTable"
           licenseKey="non-commercial-and-evaluation"
         ></hot-table>
@@ -125,7 +126,7 @@ export default {
       if (status !== "success" && status !== "loading") {
         this.asyncActionWrapper({
           call: getOfferLayout,
-          params: { 棉花云报价类型: tabList.indexOf(type) + 1,'用户ID':id },
+          params: { 棉花云报价类型: tabList.indexOf(type) + 1, 用户ID: id },
           type: "layout",
           key
         });
@@ -136,7 +137,7 @@ export default {
       //获取我的报价
       this.asyncActionWrapper({
         call: getMyCloudOfferList,
-        params: { '用户ID': id },
+        params: { 用户ID: id },
         type: "data",
         key: `my_cloud_offer_list`
       });
@@ -234,12 +235,14 @@ export default {
       }
     },
     getExeclData() {
-      const {id} = this.data.user.data;
+      const { data } = this.layout;
+      const { id } = this.data.user.data;
       const { params } = this.$refs.layout;
       this.loading = true;
       getExcel({
         //加工批号: "62044171101" || params["批号"],
-        '用户ID':id,
+        用户ID: id,
+        ...data.carry,
         ...params
       })
         .then(res => {
@@ -270,9 +273,7 @@ export default {
       })
         .then(({ value }) => {
           const hot = this.$refs.hotTable;
-
-          const data = hot.hotInstance.getData();
-          const nextData = data;
+          const nextData = this.tableData;
           nextData.map(row => {
             const [checked] = row;
             if (checked) {
@@ -280,9 +281,7 @@ export default {
             }
             row[0] = false;
           });
-          this.tableData = nextData;
           this.isAllHotTableChecked = false;
-          this.$forceUpdate();
         })
         .catch(() => {
           // this.$message({
@@ -293,10 +292,11 @@ export default {
     },
     download() {
       const hot = this.$refs.hotTable;
-
-      const d = hot.hotInstance
-        .getPlugin("exportFile")
-        .downloadFile("csv", { filename: "中棉网", columnHeaders: true,range: [0, 1]  });
+      hot.hotInstance.getPlugin("exportFile").downloadFile("csv", {
+        filename: "中棉网",
+        columnHeaders: true,
+        range: [0, 1]
+      });
     }
   },
   watch: {
@@ -342,8 +342,7 @@ export default {
       if (v) {
         this.getExeclData();
       }
-    },
-    
+    }
   },
 
   components: {
@@ -422,6 +421,10 @@ $main: #44bdf7;
 }
 .execl-content {
   height: 100%;
+  padding-bottom: 80px;
+  .excel-box {
+    height: 100%;
+  }
 }
 </style>
 

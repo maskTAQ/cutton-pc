@@ -94,7 +94,8 @@ const commonParmas = {
     //from:'wxapp',
     m: 'zh_dianc',
     sign: '0a382e9b7fa70f12a3301fa1ceb39ea0',
-    openid: 'oc7pZ5K0I9Ild3lh6Zjj1Zu4TFec'
+    openid: 'oc7pZ5K0I9Ild3lh6Zjj1Zu4TFec',
+    device:'6'
 };
 /**
  * 请求
@@ -157,4 +158,4 @@ const get = (url, params = {}, { loading = true, handleCatch = true } = {}) => {
 };
 
 
-export { post, get, host };
+export { post, get, host ,commonParmas};
