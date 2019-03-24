@@ -27,10 +27,10 @@ export default {
 .app-container {
       height: 100%;
     padding-bottom: 130px;
-    overflow: hidden;
+    /* overflow: hidden; */
   .app-content {
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
   }
 }
 </style>
