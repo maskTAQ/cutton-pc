@@ -15,11 +15,7 @@ const INITIAL = {
 store.data.forEach(key => {
   INITIAL_DATA[key] = INITIAL;
 });
-INITIAL_DATA.user = {
-  loading: false,
-  status: 'success',
-  data: { id: 4, auth: true }
-}
+
 store.layout.forEach(key => {
   INITIAL_LAYOUT[key] = INITIAL;
 });
@@ -39,7 +35,19 @@ export default new Vuex.Store({
         ...state[type],
         [key]: payload
       };
+
     },
+    login(state, action) {
+      const { payload} = action;
+      console.log(  {
+        status: 'success',
+        data:payload
+      },'action')
+      state.data.user = {
+        status: 'success',
+        data:payload
+      }
+    }
   },
   actions: {
     asyncActionWrapper({ commit, state }, { call, type, key, params = {} }) {

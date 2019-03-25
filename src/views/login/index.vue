@@ -1,13 +1,20 @@
 <template>
   <div>
     <div class="content">
-      <qrcode class="qr" :value="JSON.stringify({clientId,type:'cotton'})" :options="{ width: 200 }"></qrcode>
+      <qrcode
+        class="qr"
+        :value="JSON.stringify({clientId,type:'cotton'})"
+        :options="{ width: 200 }"
+      ></qrcode>
     </div>
     <AppFooter/>
   </div>
 </template>
 
 <script>
+import { clientId, Publisher } from "@/utils";
+import { mapMutations } from "vuex";
+import {Message} from 'element-ui';
 import AppFooter from "@/components/app-footer.vue";
 import Vue from "vue";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
@@ -15,14 +22,29 @@ import VueQrcode from "@chenfengyuan/vue-qrcode";
 Vue.component(VueQrcode.name, VueQrcode);
 export default {
   name: "login",
+  data() {
+    return {
+      clientId
+    };
+  },
   created() {
-    this.createdClientId();
+    console.log(this.clientId, "clientId");
   },
   mounted() {
     //   this.renderQr();
     window.onload = this.renderQr;
+    Publisher.on("login", this.handleLogin);
   },
   methods: {
+    ...mapMutations(['login']),
+    handleLogin(data) {
+      console.log(data,'data')
+      this.login({
+        payload:data
+      });
+      Message.success('登录成功');
+      console.log(this.$router.push('cloud-offer-tool'), 'data');
+    },
     createdClientId() {
       var timestamp = Date.parse(new Date());
       //获取n位随机数,随机来源chars

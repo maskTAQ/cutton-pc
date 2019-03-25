@@ -163,14 +163,7 @@ export default {
       const { isAllChecked, checkedList } = this;
     },
     nextStep() {
-      //   const { data } = this.layout;
-      //   doSubmit(
-      //     data.do,
-      //     Object.assign(this.getPreValue(data), params, data.carry)
-      //   ).then(res => {
-      //     Message.success("发布成功");
-      //     this.getMyCloudOfferList();
-      //   });
+      const { id } = this.data.user.data;
       const { params } = this.$refs.layout;
       const loading = this.$loading({
         lock: true,
@@ -178,20 +171,19 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(0, 0, 0, 0.7)"
       });
-      
-      send(params["批号"]).then(res => {
-        this.isShowExecl = true;
-        console.log(res,"ad");
-        loading.close();
+
+      send({
+        action: "verifyBatchNumber",
+        data: { number: params["批号"], userId: data }
       })
-      .catch(e=>{
-        loading.close();
-      })
-      // if (!params["批号"]) {
-      //   Message.error("请输入批号");
-      // } else {
-      //   this.isShowExecl = true;
-      // }
+        .then(res => {
+          loading.close();
+          this.isShowExecl = true;
+        })
+        .catch(e => {
+          loading.close();
+          Message.error(e);
+        });
     },
     afterChange(changes) {
       changes &&
