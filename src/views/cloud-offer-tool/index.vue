@@ -171,10 +171,10 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(0, 0, 0, 0.7)"
       });
-
+console.log(this.$refs.layout,'this.$refs.layout');
       send({
         action: "verifyBatchNumber",
-        data: { number: params["批号"], userId: data }
+        data: { number: params["现货批号"], userId: id }
       })
         .then(res => {
           loading.close();

@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="content">
-      <qrcode
-        class="qr"
-        :value="JSON.stringify({clientId,type:'cotton'})"
-        :options="{ width: 200 }"
-      ></qrcode>
+      <img :src="bg" alt="bg" class="bg">
+      <div class="qr">
+        <qrcode :value="JSON.stringify({clientId,type:'cotton'})" :options="{ width: 300 }"/>
+        <p>请使用小程序扫码登录</p>
+      </div>
     </div>
     <AppFooter/>
   </div>
@@ -14,16 +14,18 @@
 <script>
 import { clientId, Publisher } from "@/utils";
 import { mapMutations } from "vuex";
-import {Message} from 'element-ui';
+import { Message } from "element-ui";
 import AppFooter from "@/components/app-footer.vue";
 import Vue from "vue";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
+import bg from "@/assets/bg.png";
 
 Vue.component(VueQrcode.name, VueQrcode);
 export default {
   name: "login",
   data() {
     return {
+      bg,
       clientId
     };
   },
@@ -36,14 +38,14 @@ export default {
     Publisher.on("login", this.handleLogin);
   },
   methods: {
-    ...mapMutations(['login']),
+    ...mapMutations(["login"]),
     handleLogin(data) {
-      console.log(data,'data')
+      console.log(data, "data");
       this.login({
-        payload:data
+        payload: data
       });
-      Message.success('登录成功');
-      console.log(this.$router.push('cloud-offer-tool'), 'data');
+      Message.success("登录成功");
+      console.log(this.$router.push("cloud-offer-tool"), "data");
     },
     createdClientId() {
       var timestamp = Date.parse(new Date());
@@ -119,14 +121,25 @@ export default {
 .content {
   height: 500px;
   position: relative;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background: #dfdede;
+  .bg {
+    margin-left: 50px;
+    width: 500px;
+  }
   .qr {
     position: absolute;
-    right: 20px;
-    bottom: 50%;
-    margin-bottom: -200px;
+    right: 70px;
+    top: 50%;
+    margin-top: -150px;
     width: 300px;
-    height: 400px;
+    height: 300px;
+    p{
+      text-align: center;
+    }
   }
 }
 </style>

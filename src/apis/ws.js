@@ -48,6 +48,7 @@ function send({ action, mpClientId, messageId, data }) {
     }
     if (action === 'verifyBatchNumber') {
         const { number, userId } = data;
+        console.log(data,'data');
         const jsonstr = {
             msg: "请求验证批号",
             action,
@@ -61,7 +62,7 @@ function send({ action, mpClientId, messageId, data }) {
                 carry: { userId, time: Date.now() },
             },
         }
-       
+       console.log(jsonstr,'jsonstr')
         message = new MQTT.Message(JSON.stringify(jsonstr));
         message.destinationName = "/topic/zmw/ccqsc/test/";
     }
@@ -76,7 +77,6 @@ function send({ action, mpClientId, messageId, data }) {
                 resolve(data.data)
             }
             else {
-                Tip.fail(msg)
                 reject(msg);
             }
 
@@ -106,7 +106,9 @@ function onMessageArrived(message) {
         })
         Publisher.emit('login', data.data)
     } 
+    console.log(data,'data --')
     if(action === "verifyBatchNumber"){
+        
         Publisher.emit(messageId, data)
     }
 }

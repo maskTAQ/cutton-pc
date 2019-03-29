@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" v-if="path !== '/login'">
     <ul>
       <li v-for="item in navList" :key="item.path" :class="{ active: item.path === path }">
         <router-link :to="item">{{item.label}}</router-link>

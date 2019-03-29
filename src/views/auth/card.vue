@@ -11,12 +11,12 @@
           v-if="isImg"
           class="upload-demo"
           drag
-          action="https://s.chncot.com/app/index.php?c=entry&a=wxapp&do=upload&m=zh_dianc"
+          action="https://s.chncot.com/app/index.php?i=6&c=entry&a=wxapp&do=upload&m=zh_dianc"
           name="upfile"
           :multiple="false"
           :before-upload="beforeUpload"
           :on-error="onUploadError"
-          :on-success="onUploadSuccess"
+          :on-success="onUploadSuccess.bind(this,item.key)"
         >
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">
@@ -29,7 +29,14 @@
           :class="{'input-label': hasInput,'img-label': type === 'img'}"
         >{{item.label}}</p>
         <div :class="{'input-box': showInput,'img-content':true}">
-          <input type="text" v-if="showInput" class="input" :placeholder="item.placeholder||'请输入'">
+          <input
+            v-if="showInput"
+            @input="handleChange(item.key,$event)"
+            :value="data[item.key]"
+            type="text"
+            class="input"
+            :placeholder="item.placeholder||'请输入'"
+          >
           <p v-if="showText" class="text">{{item.placeholder||'请输入'}}</p>
         </div>
       </div>
@@ -38,25 +45,28 @@
   </div>
 </template>
 <script>
+import Axios from "axios";
 export default {
-  props: ["option", "title", "type", "onRequestAddKf", "data"],
+  props: [
+    "option",
+    "title",
+    "type",
+    "onRequestAddKf",
+    "data",
+    "state",
+    "onChange"
+  ],
   name: "card",
   computed: {
     hasInput() {
       return ["input", "kf"].includes(this.type);
     },
     showInput() {
-      const {
-        hasInput,
-        data: { state }
-      } = this;
+      const { hasInput, state } = this;
       return hasInput && [0, 3].includes(state);
     },
     showText() {
-      const {
-        hasInput,
-        data: { state }
-      } = this;
+      const { hasInput, state } = this;
       return hasInput && state === 2;
     },
     showAddKf() {
@@ -72,6 +82,13 @@ export default {
     }
   },
   methods: {
+    handleChange(key, e) {
+      const { value } = e.target;
+      this.onChange({
+        key,
+        value
+      });
+    },
     beforeUpload(file) {
       const { name = "", type } = file;
       const isJPG = type.includes("image");
@@ -85,10 +102,13 @@ export default {
     onUploadError(...v) {
       this.$message.error("上传失败");
     },
-    onUploadSuccess(res) {
-      const { code, data, message } = res;
-      this.params = { ...this.params, ...data };
+    onUploadSuccess(key, value) {
+      console.log(res, "res12");
       this.$message.success("上传成功");
+      this.onChange({
+        key,
+        value
+      });
     }
   }
 };

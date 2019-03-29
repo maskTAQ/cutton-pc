@@ -14,9 +14,31 @@
       <p class="btn-text">{{auth.state ? '重新认证' : '认证'}}</p>
     </div>
     <div v-if="showCard">
-      <Card :option="topList" title="认证信息" type="input" :data="auth"/>
-      <Card :onRequestAddKf="handleAddKf" :option="kfInfoList" title="客服信息" type="kf" :data="auth"/>
-      <Card :option="imgList" title="图片信息" type="img" :data="auth"/>
+      <Card
+        :onChange="handleChange"
+        :option="topList"
+        title="认证信息"
+        type="input"
+        :state="auth.state"
+        :data="params"
+      />
+      <Card
+        :onChange="handleChange"
+        :onRequestAddKf="handleAddKf"
+        :option="kfInfoList"
+        title="客服信息"
+        type="kf"
+        :state="auth.state"
+        :data="params"
+      />
+      <Card
+        :onChange="handleChange"
+        :option="imgList"
+        title="图片信息"
+        type="img"
+        :state="auth.state"
+        :data="params"
+      />
     </div>
 
     <div class="btn auth" v-if="hasClickAuthBtn" @click="submit">
@@ -27,6 +49,7 @@
 <script>
 import { authInfo } from "@/apis";
 import { authStatusMap } from "@/constants";
+import { Message } from "element-ui";
 import Card from "./card";
 const kfInfoGroup = [
   {
@@ -39,11 +62,11 @@ const kfInfoGroup = [
 const imgList = [
   {
     label: "营业执照",
-    key: "a"
+    key: "img"
   },
   {
     label: "法人身份证",
-    key: "b"
+    key: "fsz_img"
   }
 ];
 export default {
@@ -53,6 +76,7 @@ export default {
       isAuth: false,
       hasClickAuthBtn: false,
       authStatusMap,
+      params: {},
       auth: {
         state: 0
       },
@@ -60,32 +84,32 @@ export default {
         {
           label: "负责人",
           placeholder: "请输入负责人",
-          key: "a"
+          key: "user_name"
         },
         {
           label: "手机号码",
           placeholder: "请输入负责人",
-          key: "a"
+          key: "tel"
         },
         {
           label: "行业",
           placeholder: "请输入负责人",
-          key: "a"
+          key: "sfz_img2"
         },
         {
           label: "企业名称",
           placeholder: "请输入负责人",
-          key: "a"
+          key: "store_name"
         },
         {
           label: "企业代码(执照号)",
           placeholder: "请输入负责人",
-          key: "a"
+          key: "sp_img"
         },
         {
           label: "单位地址",
           placeholder: "请输入负责人",
-          key: "a"
+          key: "address"
         }
       ],
       kfInfoList: [...kfInfoGroup],
@@ -109,6 +133,9 @@ export default {
     }
   },
   methods: {
+    handleChange({ key, value }) {
+      this.params[key] = value;
+    },
     startAuth() {
       this.hasClickAuthBtn = true;
     },
@@ -117,7 +144,10 @@ export default {
       this.kfInfoList = next.concat(kfInfoGroup);
     },
     submit() {
-      authInfo();
+      console.log(this.params, "params");
+      authInfo(this.params).then(res => {
+        Message.success("认证成功");
+      });
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
