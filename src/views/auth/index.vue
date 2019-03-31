@@ -20,7 +20,7 @@
         title="认证信息"
         type="input"
         :state="auth.state"
-        :data="params"
+        :data="value"
       />
       <Card
         :onChange="handleChange"
@@ -29,7 +29,7 @@
         title="客服信息"
         type="kf"
         :state="auth.state"
-        :data="params"
+        :data="value"
       />
       <Card
         :onChange="handleChange"
@@ -37,7 +37,7 @@
         title="图片信息"
         type="img"
         :state="auth.state"
-        :data="params"
+        :data="value"
       />
     </div>
 
@@ -47,7 +47,8 @@
   </div>
 </template>
 <script>
-import { authInfo } from "@/apis";
+import { mapActions, mapState } from "vuex";
+import { authInfo, getAuthInfo } from "@/apis";
 import { authStatusMap } from "@/constants";
 import { Message } from "element-ui";
 import Card from "./card";
@@ -77,9 +78,7 @@ export default {
       hasClickAuthBtn: false,
       authStatusMap,
       params: {},
-      auth: {
-        state: 0
-      },
+
       topList: [
         {
           label: "负责人",
@@ -119,20 +118,31 @@ export default {
       }
     };
   },
+  created() {
+    this.getAuthInfo();
+  },
   computed: {
-    authStatus() {
-      const { isAuth, hasClickAuthBtn } = this;
-      return isAuth ? "已认证" : hasClickAuthBtn ? "认证中" : "企业未认证";
-    },
+    ...mapState({
+      data: state => state.data
+    }),
     showCard() {
       const {
         hasClickAuthBtn,
         auth: { state }
       } = this;
       return hasClickAuthBtn || state === 2;
+    },
+    auth() {
+      const { data } = this.data.auth;
+      return data ? { ...data, state: +data.state } : { status: NaN };
+    },
+    value() {
+      const { auth, params } = this;
+      return auth.state === 2 ? auth : params;
     }
   },
   methods: {
+    ...mapActions(["asyncActionWrapper"]),
     handleChange({ key, value }) {
       this.params[key] = value;
     },
@@ -144,17 +154,29 @@ export default {
       this.kfInfoList = next.concat(kfInfoGroup);
     },
     submit() {
-      console.log(this.params, "params");
-      authInfo(this.params).then(res => {
-        Message.success("认证成功");
+      authInfo({ ...this.params, user_id: this.data.user.data.id }).then(
+        res => {
+          Message.success("认证成功");
+          this.getAuthInfo();
+        }
+      );
+    },
+    getAuthInfo() {
+      const { id } = this.data.user.data;
+      const { status } = this.data.auth;
+      this.asyncActionWrapper({
+        call: getAuthInfo,
+        params: { user_id: id },
+        type: "data",
+        key: "auth"
       });
+      this.hasClickAuthBtn = false;
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           alert("submit!");
         } else {
-          console.log("error submit!!");
           return false;
         }
       });

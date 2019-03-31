@@ -8,7 +8,7 @@
         :class="{'input-item':hasInput,'img-item':isImg}"
       >
         <el-upload
-          v-if="isImg"
+          v-if="canInput && isImg"
           class="upload-demo"
           drag
           action="https://s.chncot.com/app/index.php?i=6&c=entry&a=wxapp&do=upload&m=zh_dianc"
@@ -24,20 +24,25 @@
             <em>点击上传</em>
           </div>
         </el-upload>
+        <img
+          v-if="!canInput && isImg"
+          :src="'https://s.chncot.com/attachment/'+data[item.key]"
+          :alt="item.label"
+        >
         <p
           v-if="type!=='img'"
           :class="{'input-label': hasInput,'img-label': type === 'img'}"
         >{{item.label}}</p>
-        <div :class="{'input-box': showInput,'img-content':true}">
+        <div :class="{'input-box': hasInput,'img-content':true}">
           <input
-            v-if="showInput"
+            v-if="canInput && hasInput"
             @input="handleChange(item.key,$event)"
             :value="data[item.key]"
             type="text"
             class="input"
             :placeholder="item.placeholder||'请输入'"
           >
-          <p v-if="showText" class="text">{{item.placeholder||'请输入'}}</p>
+          <p v-if="!canInput && hasInput" class="text">{{data[item.key]}}</p>
         </div>
       </div>
       <button v-if="showAddKf" class="add-kf-btn" @click="onRequestAddKf">添加客服</button>
@@ -57,13 +62,18 @@ export default {
     "onChange"
   ],
   name: "card",
+  watch: {
+    data(v) {
+      console.log(v, "card data");
+    }
+  },
   computed: {
     hasInput() {
       return ["input", "kf"].includes(this.type);
     },
-    showInput() {
+    canInput() {
       const { hasInput, state } = this;
-      return hasInput && [0, 3].includes(state);
+      return [0, 3].includes(state);
     },
     showText() {
       const { hasInput, state } = this;
@@ -103,7 +113,6 @@ export default {
       this.$message.error("上传失败");
     },
     onUploadSuccess(key, value) {
-      console.log(res, "res12");
       this.$message.success("上传成功");
       this.onChange({
         key,

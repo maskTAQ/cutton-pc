@@ -171,7 +171,6 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(0, 0, 0, 0.7)"
       });
-console.log(this.$refs.layout,'this.$refs.layout');
       send({
         action: "verifyBatchNumber",
         data: { number: params["现货批号"], userId: id }
@@ -183,21 +182,6 @@ console.log(this.$refs.layout,'this.$refs.layout');
         .catch(e => {
           loading.close();
           Message.error(e);
-        });
-    },
-    afterChange(changes) {
-      changes &&
-        changes.forEach(([row, prop, oldValue, newValue]) => {
-          if (prop === "checkbox") {
-            if (row === 0) {
-              if (newValue) {
-                console.log("全选");
-              } else {
-                console.log("取消全选");
-              }
-              console.log(this.tableData);
-            }
-          }
         });
     },
     prevStep() {

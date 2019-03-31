@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="footer-container">
     <ul>
       <li v-for="item in links" :key="item">{{item}}</li>
     </ul>
@@ -22,7 +22,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.container {
+.footer-container {
   height: 200px;
   background: #b9b9b9;
   display: flex;

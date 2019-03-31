@@ -58,7 +58,6 @@ router.beforeEach((to, from, next) => {
     if (status === 'success') {
       next();
     } else {
-      console.log('请先登录');
       Message.error('请先登录');
       next({
         path: 'login',

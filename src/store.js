@@ -19,6 +19,15 @@ store.data.forEach(key => {
 store.layout.forEach(key => {
   INITIAL_LAYOUT[key] = INITIAL;
 });
+
+INITIAL_DATA.user = {
+  status: 'success',
+  data:{
+    id:4,
+    state:0
+  }
+}
+
 export default new Vuex.Store({
   state: { data: INITIAL_DATA, layout: INITIAL_LAYOUT, productTypes },
   mutations: {
@@ -39,10 +48,6 @@ export default new Vuex.Store({
     },
     login(state, action) {
       const { payload} = action;
-      console.log(  {
-        status: 'success',
-        data:payload
-      },'action')
       state.data.user = {
         status: 'success',
         data:payload

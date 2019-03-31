@@ -1,10 +1,13 @@
 <template>
   <div>
-    <div class="content">
-      <img :src="bg" alt="bg" class="bg">
-      <div class="qr">
-        <qrcode :value="JSON.stringify({clientId,type:'cotton'})" :options="{ width: 300 }"/>
-        <p>请使用小程序扫码登录</p>
+    <div class="login-container">
+      <div class="content">
+        <img :src="bgIcon" alt="bg" class="bg">
+        <div class="qr">
+          <img :src="markIcon" alt class="mark">
+          <qrcode :value="JSON.stringify({clientId,type:'cotton'})" :options="{ width: 300 }"/>
+          <p>请使用小程序扫码登录</p>
+        </div>
       </div>
     </div>
     <AppFooter/>
@@ -18,19 +21,17 @@ import { Message } from "element-ui";
 import AppFooter from "@/components/app-footer.vue";
 import Vue from "vue";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
-import bg from "@/assets/bg.png";
-
+import bgIcon from "@/assets/bg.png";
+import markIcon from "@/assets/mark.png";
 Vue.component(VueQrcode.name, VueQrcode);
 export default {
   name: "login",
   data() {
     return {
-      bg,
+      bgIcon,
+      markIcon,
       clientId
     };
-  },
-  created() {
-    console.log(this.clientId, "clientId");
   },
   mounted() {
     //   this.renderQr();
@@ -40,12 +41,10 @@ export default {
   methods: {
     ...mapMutations(["login"]),
     handleLogin(data) {
-      console.log(data, "data");
       this.login({
         payload: data
       });
       Message.success("登录成功");
-      console.log(this.$router.push("cloud-offer-tool"), "data");
     },
     createdClientId() {
       var timestamp = Date.parse(new Date());
@@ -118,14 +117,19 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.login-container {
+  background: #dfdede;
+}
 .content {
+  margin: 0 auto;
+  max-width: 1200px;
   height: 500px;
   position: relative;
   padding: 0 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: #dfdede;
+
   .bg {
     margin-left: 50px;
     width: 500px;
@@ -136,9 +140,23 @@ export default {
     top: 50%;
     margin-top: -150px;
     width: 300px;
-    height: 300px;
-    p{
+    height: 320px;
+    border: 1px solid #bbb;
+    overflow: hidden;
+    background: #fff;
+    p {
       text-align: center;
+      position: absolute;
+      width: 100%;
+      bottom: 10px;
+    }
+    .mark{
+      position: absolute;
+      top: 0;
+      right: 20px;
+      width: 100px;
+      border: 1px solid #bbb;
+      border-top: none;
     }
   }
 }

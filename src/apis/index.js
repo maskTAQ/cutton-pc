@@ -97,6 +97,14 @@ export function getExcel(params) {
 export function authInfo(params) {
     return get('ruzhu',params);
 }
+//获取认证信息
+export function getAuthInfo(params) {
+    return get('MyRuZhu', params);
+}
+//获取手机号
+export function getMobile(params) {
+    return get('UserPhone', params);
+}
 export {
     login
 }
