@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-loading="data.status==='loading'">
+  <div class="list-wrapper-container" v-loading="data.status==='loading'">
     <slot v-show="data.status==='success'"></slot>
     <p v-show="data.status==='success' && data.data.list.length ===0">暂无数据</p>
   </div>
@@ -10,7 +10,5 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.container {
- 
-}
+
 </style>

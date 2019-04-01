@@ -9,7 +9,6 @@
       >
         <el-upload
           v-if="canInput && isImg"
-          class="upload-demo"
           drag
           action="https://s.chncot.com/app/index.php?i=6&c=entry&a=wxapp&do=upload&m=zh_dianc"
           name="upfile"
@@ -33,7 +32,7 @@
           v-if="type!=='img'"
           :class="{'input-label': hasInput,'img-label': type === 'img'}"
         >{{item.label}}</p>
-        <div :class="{'input-box': hasInput,'img-content':true}">
+        <div :class="{'input-box': hasInput && canInput,'img-content':isImg}">
           <input
             v-if="canInput && hasInput"
             @input="handleChange(item.key,$event)"
@@ -42,7 +41,7 @@
             class="input"
             :placeholder="item.placeholder||'请输入'"
           >
-          <p v-if="!canInput && hasInput" class="text">{{data[item.key]}}</p>
+          <p v-if="!canInput && hasInput" class="text">{{data[item.key] || '未填写!'}}</p>
         </div>
       </div>
       <button v-if="showAddKf" class="add-kf-btn" @click="onRequestAddKf">添加客服</button>
@@ -126,8 +125,8 @@ export default {
 $main: #44bdf7;
 .card-container {
   margin: 20px 0;
-  padding: 10px;
-  background: #f4f4f4;
+  padding: 20px;
+  background: #fff;
   border-radius: 16px;
 }
 .img-content {
@@ -136,7 +135,7 @@ $main: #44bdf7;
 }
 .title {
   height: 40px;
-  font-size: 26px;
+  font-size: 20px;
   color: $main;
 }
 
@@ -148,8 +147,11 @@ $main: #44bdf7;
   align-items: center;
 }
 .img-item {
-  margin: 0 10px;
+  margin: 10px 0;
   flex: 1;
+  img{
+    width: 100%;
+  }
 }
 .input-label {
   width: 100px;
@@ -177,7 +179,8 @@ $main: #44bdf7;
   height: 100%;
   border-radius: 10px;
   border: 1px solid #ccc;
-  .input {
+  input {
+    height: 100%;
     flex: 1;
     padding-left: 20px;
     font-size: 26px;
@@ -189,7 +192,9 @@ $main: #44bdf7;
     color: #000;
   }
 }
-
+.text {
+  padding-left: 20px;
+}
 .add-kf-btn {
   margin: 10px 0;
   width: 100%;

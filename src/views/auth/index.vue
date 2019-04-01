@@ -1,8 +1,8 @@
 <template>
-  <div class="container">
+  <div class="auth-container">
     <div class="auth-status-box" v-if="!hasClickAuthBtn">
       <div class="auth-status-header">
-        <p class="auth-status-header-text">认证状态</p>
+       认证状态
       </div>
       <div class="auth-status-value">
         <p
@@ -208,11 +208,9 @@ export default {
 </script>
 <style lang="scss" scoped>
 $main: #44bdf7;
-.container {
-  height: 100%;
+.auth-container {
   padding: 20px;
-  background: #fff;
-  overflow: auto;
+  background: #f9f9f9;
 }
 
 .auth-status-box {
@@ -223,13 +221,11 @@ $main: #44bdf7;
 }
 
 .auth-status-header {
-  height: 80px;
-}
-
-.auth-status-header-text {
-  font-size: 26px;
+  height: 40px;
+  font-size: 20px;
   color: $main;
 }
+
 
 .auth-status-value {
   height: 40px;
@@ -237,6 +233,7 @@ $main: #44bdf7;
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  color: red;
 }
 
 .auth-status-value-text {
@@ -249,17 +246,17 @@ $main: #44bdf7;
   color: #ccc;
 }
 .btn {
-  margin: 20px 0;
-  height: 50px;
+  margin:  0 auto;
+  width: 100px;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
   background: $main;
   border-radius: 8px;
+  font-size: 12px;
+  color: #fff;
+  cursor: pointer;
 }
 
-.btn-text {
-  font-size: 15px;
-  color: #fff;
-}
 </style>

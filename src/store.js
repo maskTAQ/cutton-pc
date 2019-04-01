@@ -3,9 +3,7 @@ import Vuex from 'vuex'
 import { store, productTypes } from '@/constants';
 
 Vue.use(Vuex);
-const INITIAL_DATA = {
-
-};
+const INITIAL_DATA = {};
 const INITIAL_LAYOUT = {};
 const INITIAL = {
   loading: false,
@@ -22,9 +20,9 @@ store.layout.forEach(key => {
 
 INITIAL_DATA.user = {
   status: 'success',
-  data:{
-    id:4,
-    state:0
+  data: {
+    id: 4,
+    state: 0
   }
 }
 
@@ -44,15 +42,21 @@ export default new Vuex.Store({
         ...state[type],
         [key]: payload
       };
-
     },
     login(state, action) {
-      const { payload} = action;
+      const { payload } = action;
       state.data.user = {
         status: 'success',
-        data:payload
+        data: payload
       }
-    }
+    },
+    logout(state, action) {
+      alert('logout');
+      state.data.user = {
+        status: 'init',
+        data: {}
+      }
+    },
   },
   actions: {
     asyncActionWrapper({ commit, state }, { call, type, key, params = {} }) {
@@ -90,6 +94,5 @@ export default new Vuex.Store({
           });
         })
     },
-
   }
 })

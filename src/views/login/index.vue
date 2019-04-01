@@ -45,6 +45,7 @@ export default {
         payload: data
       });
       Message.success("登录成功");
+      this.$router.push("cloud-offer-tool");
     },
     createdClientId() {
       var timestamp = Date.parse(new Date());

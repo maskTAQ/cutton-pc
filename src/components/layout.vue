@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="layout-container">
     <div v-for="(area,areaIndex) in data.param" :key="areaIndex" class="area">
       <p class="area-title" v-if="area.title">{{area.title}}</p>
 
@@ -183,81 +183,78 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../platform.scss";
-.container {
-  height: 100%;
-  padding-bottom: 100px;
-  overflow: auto;
-}
-.area-title {
-  //padding-left: 20px;
-  height: 60px;
-  line-height: 60px;
-  font-size: 20px;
-  color: #000;
-}
+.layout-container {
+  .area-title {
+    //padding-left: 20px;
+    height: 60px;
+    line-height: 60px;
+    font-size: 20px;
+    color: #000;
+  }
 
-.field-column {
-  @extend .flex;
-  flex-direction: column;
+  .field-column {
+    @extend .flex;
+    flex-direction: column;
 
-  background: #fff;
-}
-.field-row {
-  height: 50px;
-  @extend .flex;
-  flex-direction: row;
-  align-items: center;
-  padding-right: 15px;
-  //padding: 0 20px;
-  @include borderD(bottom, 1px, solid, #ccc);
-}
-.field-title {
-  font-size: 14px;
-  color: #000;
-}
+    background: #fff;
+  }
+  .field-row {
+    height: 50px;
+    @extend .flex;
+    flex-direction: row;
+    align-items: center;
+    padding-right: 15px;
+    //padding: 0 20px;
+    @include borderD(bottom, 1px, solid, #ccc);
+  }
+  .field-title {
+    font-size: 14px;
+    color: #000;
+  }
 
-.field-label {
-  width: 70px;
-  margin-right: 10px;
-  font-size: 14px;
-  color: #000;
-}
+  .field-label {
+    width: 70px;
+    margin-right: 10px;
+    font-size: 14px;
+    color: #000;
+  }
 
-.field-row-content {
-  flex: 1;
-  height: 100%;
-  @extend .flex;
-  flex-direction: row;
-  align-items: center;
-}
+  .field-row-content {
+    flex: 1;
+    height: 100%;
+    @extend .flex;
+    flex-direction: row;
+    align-items: center;
+  }
 
-.field-content {
-  flex: 1;
-  @extend .flex;
-  flex-direction: row;
-  align-items: center;
-}
-.el-select {
-  margin-right: 10px;
-}
-.input {
-  flex: 1;
-  height: 100%;
-  border: none;
-  outline: none;
-}
-.text {
-  height: 100%;
-  font-size: 14px;
-  color: #000;
-}
-.upload-box {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-.button {
-  margin: 20px 0;
-  width: 100%;
+  .field-content {
+    flex: 1;
+    @extend .flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .el-select {
+    margin-right: 10px;
+  }
+  .input {
+    flex: 1;
+    height: 100%;
+    border: none;
+    outline: none;
+  }
+  .text {
+    height: 100%;
+    font-size: 14px;
+    color: #000;
+  }
+  .upload-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .button {
+    margin: 20px 0;
+    width: 100%;
+  }
 }
 </style>

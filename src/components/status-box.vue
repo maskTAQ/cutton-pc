@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-loading="status==='loading'">
+  <div class="status-box-container" v-loading="status==='loading'">
     <slot v-show="status==='success'"></slot>
     <p v-show="status==='error'">加载失败</p>
   </div>

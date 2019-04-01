@@ -20,18 +20,23 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+html {
+  height: 100%;
+  background: #f9f9f9;
+}
+/* 
 #app {
   height: 100%;
-  // overflow: hidden;
+  
 }
 .app-container {
   height: 100%;
   padding-bottom: 130px;
-  /* overflow: hidden; */
+ 
   .app-content {
     height: 100%;
-    /* overflow: hidden; */
+    
   }
-}
+} */
 </style>

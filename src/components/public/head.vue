@@ -1,20 +1,20 @@
 <template>
-  <div class="contion">
-    <div class="head-top"  v-if="path !== '/login'">
+  <div class="header-container">
+    <div class="head-top" v-if="path !== '/login'">
       <div class="head-left">
         <p>欢迎来到中棉网，无差价棉花数据报价信息平台</p>
       </div>
       <div class="head-right">
-        <div class="isLogin" v-show="isLoginUser">
-          <span class="mainColor">默默公司</span>
-          <span class="approve">已认证</span>
-          <div class="btn">退出</div>
+        <div class="isLogin">
+          <span class="mainColor" v-show="isAuth">{{auth.store_name}}</span>
+          <span class="approve">{{authStatusMap[auth.state]}}</span>
+          <div class="btn" @click="handleLogout">退出</div>
         </div>
-        <div>
+        <div v-show="isAuth">
           <span class="mainColor">|&nbsp;企业信息&nbsp;|&nbsp;</span>
           <span>
             客服咨询热线：
-            <span class="mainColor">4008825779</span>
+            <span class="mainColor">{{auth.tel}}</span>
           </span>
         </div>
       </div>
@@ -23,7 +23,7 @@
       <div>
         <img src="../../assets/logo.png" alt>
       </div>
-      <div  v-if="path !== '/login'">
+      <div v-if="path !== '/login'">
         <el-input
           class="input"
           type="text"
@@ -39,41 +39,45 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
-//this.data.user.data;
+import { mapState, mapMutations } from "vuex";
+import { authStatusMap } from "@/constants";
 export default {
+  name: "head",
   data() {
     return {
+      authStatusMap,
       allplant: "",
       isLoginUser: false
     };
   },
   computed: {
     ...mapState({
-      user: state => state.data.user
+      data: state => state.data
     }),
     path() {
       return this.$route.path;
+    },
+    auth() {
+      const { data } = this.data.auth;
+      return data ? { ...data, state: +data.state } : { status: NaN };
+    },
+    isAuth() {
+      return this.auth.state === 2;
     }
   },
   methods: {
-    isLogins() {
-      if (this.user.status === "success") {
-        this.isLoginUser = true;
-      } else {
-        this.isLoginUser = false;
-      }
+    ...mapMutations(["logout"]),
+    handleLogout() {
+      this.logout();
+      this.$router.push("login");
     }
-  },
-  created() {
-    this.isLogins();
   }
 };
 </script>
 <style scoped lang="scss">
-.contion {
+.header-container {
   font-size: 14px;
+  background: #fff;
   .head-top {
     display: flex;
     align-items: center;
@@ -98,8 +102,9 @@ export default {
           border-radius: 6px;
           font-size: 14px;
           background: #2da22e;
-          color: white;
+          color: #fff;
           width: 66px;
+          cursor: pointer;
         }
         .approve {
           padding-left: 10px;

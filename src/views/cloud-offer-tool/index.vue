@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="cloud-offer-tool-container">
     <div class="content" v-show="!isShowExecl">
       <div class="left">
         <el-tabs v-model="type">
@@ -346,77 +346,67 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 @import "~handsontable/dist/handsontable.full.css";
 $main: #44bdf7;
-.container {
-  height: 100%;
-}
 .content {
-  padding: 0 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  background: #fff;
-  .left {
-    flex: 1;
-    border-right: 1px solid #ccc;
-    background: #fff;
-  }
-  .right {
-    width: 400px;
+    padding: 0 20px;
     height: 100%;
-    overflow: auto;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    .header {
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      padding: 0 15px;
-      background: $main;
+    flex-direction: row;
+    background: #fff;
+    .left {
+      flex: 1;
+      border-right: 1px solid #ccc;
+      background: #fff;
     }
-    .title {
-      height: 50px;
-      line-height: 50px;
+    .right {
+      width: 400px;
+      height: 100%;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      .header {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0 15px;
+        background: $main;
+      }
+      .title {
+        height: 50px;
+        line-height: 50px;
 
-      color: #fff;
-      padding: 0;
-    }
-    .btn-group {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      color: #fff;
-      font-size: 18px;
-      i {
-        margin: 0 6px;
-        cursor: pointer;
+        color: #fff;
+        padding: 0;
       }
-      .checkbox {
-        color: #fff !important;
-      }
-      :global {
-        .el-checkbox__label {
-          color: #fff;
+      .btn-group {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        color: #fff;
+        font-size: 18px;
+        i {
+          margin: 0 6px;
+          cursor: pointer;
+        }
+        .checkbox {
+          color: #fff !important;
+        }
+        :global {
+          .el-checkbox__label {
+            color: #fff;
+          }
         }
       }
-    }
-    .list-container {
-      height: 100%;
-      padding-bottom: 50px;
-      overflow: auto;
+      .list-container {
+        height: 100%;
+        padding-bottom: 50px;
+        overflow: auto;
+      }
     }
   }
-}
-.execl-content {
-  height: 100%;
-  padding-bottom: 80px;
-  .excel-box {
-    height: 100%;
-  }
-}
 </style>
 
