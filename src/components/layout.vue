@@ -7,6 +7,7 @@
         <div
           :class="{'field-row':isShowField(field.visible)}"
           v-for="(field,fidldI) in area.data"
+          :id="field.title+field.visible"
           :key="field.title||fidldI"
         >
           <template class v-if="isShowField(field.visible)">
@@ -17,14 +18,15 @@
                   class="input"
                   v-if="component.type === 'input'"
                   :key="component.content || componentI"
-                  v-model="params[component.param]"
+                  :value="value[component.param]"
+                  @input="e=>handleChange(component.param,e.target.value)"
                   :placeholder="component.content"
                 >
                 <el-select
                   v-if="component.type === 'select'"
                   :key="component.label || componentI"
-                  v-model="params[component.param]"
-                  change="onChange(component.param)"
+                  :value="value[component.param]"
+                  @change="v=>handleChange(component.param,v)"
                   :placeholder="component.placeholder"
                 >
                   <el-option
@@ -35,20 +37,23 @@
                   ></el-option>
                 </el-select>
 
-                <el-radio-group
+                <RadioGroup
                   v-if="['radio','radiorect'].includes(component.type)"
                   :key="component.label || componentI"
-                  v-model="params[component.param]"
+                  :value="value[component.param]"
+                  @on-change="v=>handleChange(component.param,v)"
                 >
-                  <el-radio v-for="item in component.content" :label="item" :key="item">{{item}}</el-radio>
-                </el-radio-group>
-                <el-checkbox-group
+                  <Radio v-for="item in component.content" :label="item" :key="item">{{item}}</Radio>
+                </RadioGroup>
+                <CheckboxGroup
                   v-if="['check','checkcircle'].includes(component.type)"
                   :key="component.label || componentI"
-                  v-model="params[component.param]"
+                  :value="value[component.param]"
+                  @on-change="v=>handleChange(component.param,v)"
                 >
-                  <el-checkbox v-for="item in component.content" :label="item" :key="item"></el-checkbox>
-                </el-checkbox-group>
+                  <Checkbox v-for="item in component.content" :label="item" :key="item"></Checkbox>
+                </CheckboxGroup>
+
                 <el-upload
                   v-if="component.type === 'input-file'"
                   :key="component.label || componentI"
@@ -75,61 +80,51 @@
         </div>
       </div>
     </div>
-    <el-button class="button" type="primary" :loading="false" @click="submit">下一步</el-button>
   </div>
 </template>
 <script>
 import { getOfferList } from "@/apis";
 import { commonParmas } from "@/apis/base.js";
 export default {
-  props: ["data", "onSubmit"],
+  props: ["data", "params", "onChange"],
   data() {
     return {
-      system: commonParmas,
-      params: {}
+      system: commonParmas
     };
   },
-  created() {
-    this.initParams();
-  },
-
   computed: {
-    a() {
-      return this.params;
-    },
     updataParams() {
       const { system } = this;
       const { carry } = this.data;
       return { ...carry, ...system };
-    }
-  },
-  methods: {
-    initParams() {
-      const p = {};
+    },
+    value() {
+      const p = { ...this.params };
       this.data.param.forEach(area => {
         area.data.forEach(filed => {
           filed.components.forEach(component => {
             const { param, value, type } = component;
             if (type.includes("check")) {
-              p[param] = value || [];
+              p[param] = p[param] || value || [];
             } else {
-              p[param] = value;
+              p[param] = p[param] || value;
             }
           });
         });
       });
-      this.params = p;
-    },
-    computedLayoutValue() {
-      this.layout = this.data.param.map(area => {
-        const data = area.data.filter(filed => {
-          return this.isShowField(filed.visible);
-        });
-        return { ...area, data };
+      return p;
+    }
+  },
+  methods: {
+    handleChange(key, value) {
+      this.onChange({
+        key,
+        value
       });
     },
     isShowField(visible) {
-      const { params } = this;
+      const { value: params } = this;
+
       let isVisible = true;
       if (typeof visible === "string") {
         if (visible.includes("=")) {
@@ -142,7 +137,7 @@ export default {
         }
         if (visible.includes("!=")) {
           const [key, value] = visible.split("!=");
-          if (Array.isArray(params[key])) {
+          if (Array.isArray(value[key])) {
             isVisible = params[key].every(item => item !== value);
           } else {
             isVisible = params[key] !== value;
@@ -153,11 +148,6 @@ export default {
         isVisible = visible;
       }
       return isVisible;
-    },
-
-    submit() {
-      const { params, onSubmit } = this;
-      onSubmit(params);
     },
 
     beforeUpload(file) {
@@ -175,7 +165,10 @@ export default {
     },
     onUploadSuccess(res) {
       const { code, data, message } = res;
-      this.params = { ...this.params, ...data };
+      for (const key in data) {
+        this.handleChange(key, data[key]);
+      }
+
       this.$message.success("上传成功");
     }
   }
@@ -199,7 +192,7 @@ export default {
     background: #fff;
   }
   .field-row {
-    height: 50px;
+    min-height: 50px;
     @extend .flex;
     flex-direction: row;
     align-items: center;

@@ -9,7 +9,15 @@ let serverStatus = {
     msg: '初始化'
 };
 var client = new MQTT.Client("skybcc.com", 8083, pcClientId);//建立客户端实例  
-client.connect({ onSuccess: onConnect });//连接服务器并注册连接成功处理事件  
+
+function connect() {
+    serverStatus = {
+        connected: false,
+        msg: '连接中'
+    };
+    client.connect({ onSuccess: onConnect });//连接服务器并注册连接成功处理事件  
+}
+connect();
 function onConnect() {
     serverStatus = {
         connected: true,
@@ -17,6 +25,7 @@ function onConnect() {
     };
     client.subscribe(pcClientId);//订阅主题  
 }
+
 client.onConnectionLost = onConnectionLost;//注册连接断开处理事件  
 client.onMessageArrived = onMessageArrived;//注册消息接收处理事件  
 function onConnectionLost(responseObject) {
@@ -25,6 +34,7 @@ function onConnectionLost(responseObject) {
             connected: false,
             msg: '连接断开'
         };
+        connect();
     }
 }
 
@@ -32,7 +42,7 @@ function send({ action, mpClientId, messageId, data }) {
     if (!serverStatus.connected) {
         return Promise.reject(serverStatus.msg);
     }
-    let id = messageId||Date.now();
+    let id = messageId || Date.now();
     let message;
     if (action === 'sendLoginResponse') {
         var jsonstr = {
@@ -40,7 +50,7 @@ function send({ action, mpClientId, messageId, data }) {
             code: 200,
             msg: "PC端已登陆成功!",
             data: { device: 6 },
-            messageId:id,
+            messageId: id,
             client_id: pcClientId,
         }
         message = new MQTT.Message(JSON.stringify(jsonstr));
@@ -51,7 +61,7 @@ function send({ action, mpClientId, messageId, data }) {
         const jsonstr = {
             msg: "请求验证批号",
             action,
-            messageId:id,
+            messageId: id,
             clientId: pcClientId,
             data: {
                 url: "https://s.chncot.com/app/index.php?i=6&t=0&v=9.4&from=wxapp&m=zh_dianc&sign=8fe61a41cf15856e716943ef239ca1f2&c=entry&a=wxapp&do=",
@@ -61,7 +71,8 @@ function send({ action, mpClientId, messageId, data }) {
                 carry: { userId, time: Date.now() },
             },
         }
-       message = new MQTT.Message(JSON.stringify(jsonstr));
+        console.log(jsonstr, 'jsonstr')
+        message = new MQTT.Message(JSON.stringify(jsonstr));
         message.destinationName = "/topic/zmw/ccqsc/test/";
     }
     client.send(message);
@@ -103,8 +114,8 @@ function onMessageArrived(message) {
             }
         })
         Publisher.emit('login', data.data)
-    } 
-    if(action === "verifyBatchNumber"){
+    }
+    if (action === "verifyBatchNumber") {
         Publisher.emit(messageId, data)
     }
 }

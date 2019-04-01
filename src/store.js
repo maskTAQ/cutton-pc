@@ -18,14 +18,15 @@ store.layout.forEach(key => {
   INITIAL_LAYOUT[key] = INITIAL;
 });
 
-INITIAL_DATA.user = {
-  status: 'success',
-  data: {
-    id: 4,
-    state: 0
-  }
-}
-
+// INITIAL_DATA.user = {
+//   status: 'success',
+//   data: {
+//     id: 4,
+//     state: 0
+//   }
+// }
+const userCacheData = localStorage.getItem('user');
+INITIAL_DATA.user = userCacheData ? { status: 'success', data: JSON.parse(userCacheData) } : INITIAL_DATA.user;
 export default new Vuex.Store({
   state: { data: INITIAL_DATA, layout: INITIAL_LAYOUT, productTypes },
   mutations: {
@@ -45,13 +46,14 @@ export default new Vuex.Store({
     },
     login(state, action) {
       const { payload } = action;
+      localStorage.setItem('user', JSON.stringify(payload));
       state.data.user = {
         status: 'success',
         data: payload
       }
     },
     logout(state, action) {
-      alert('logout');
+      localStorage.removeItem('user');
       state.data.user = {
         status: 'init',
         data: {}

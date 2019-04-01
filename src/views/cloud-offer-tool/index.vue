@@ -9,9 +9,11 @@
           <Layout
             v-if="layout.status === 'success'"
             :data="layout.data"
-            :onSubmit="nextStep"
+            :params="params[type]"
+            :onChange="handleParamsChange"
             ref="layout"
           />
+          <el-button class="button" type="primary" :loading="false" @click="nextStep">下一步</el-button>
         </StatusBox>
       </div>
       <div class="right">
@@ -102,10 +104,13 @@ export default {
     };
   },
   created() {
+    //获取我的云报价
     this.getMyCloudOfferList();
+    //获取报价布局
     this.getOfferLayout();
+    //获取报价参数
+    this.initParams();
   },
-  mounted() {},
   computed: {
     ...mapState({
       my_cloud_offer_list: state => state.data.my_cloud_offer_list,
@@ -120,6 +125,13 @@ export default {
   },
   methods: {
     ...mapActions(["asyncActionWrapper"]),
+    initParams() {
+      const params = {};
+      this.tabList.forEach(tab => {
+        params[tab] = {};
+      });
+      this.params = params;
+    },
     getOfferLayout() {
       const { id } = this.data.user.data;
       const { type, tabList, layouts } = this;
@@ -162,9 +174,14 @@ export default {
     toggleCheckedStatus() {
       const { isAllChecked, checkedList } = this;
     },
+    handleParamsChange({ key, value }) {
+      const { type } = this;
+      this.params[type] = { ...this.params[type], [key]: value };
+    },
     nextStep() {
       const { id } = this.data.user.data;
-      const { params } = this.$refs.layout;
+      const params = this.params[this.type];
+
       const loading = this.$loading({
         lock: true,
         text: "验证批号中...",
@@ -189,7 +206,7 @@ export default {
     },
     submit() {
       const { data } = this.layout;
-      const { params } = this.$refs.layout;
+      const params = this.params[this.type];
       doSubmit(
         data.do,
         Object.assign(this.getPreValue(data), params, data.carry)
@@ -346,67 +363,67 @@ export default {
   }
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 @import "~handsontable/dist/handsontable.full.css";
 $main: #44bdf7;
 .content {
-    padding: 0 20px;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  background: #fff;
+  .left {
+    flex: 1;
+    border-right: 1px solid #ccc;
     background: #fff;
-    .left {
-      flex: 1;
-      border-right: 1px solid #ccc;
-      background: #fff;
-    }
-    .right {
-      width: 400px;
-      height: 100%;
-      overflow: auto;
+  }
+  .right {
+    width: 400px;
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    .header {
+      width: 100%;
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      .header {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 0 15px;
-        background: $main;
-      }
-      .title {
-        height: 50px;
-        line-height: 50px;
+      flex-direction: row;
+      justify-content: space-between;
+      padding: 0 15px;
+      background: $main;
+    }
+    .title {
+      height: 50px;
+      line-height: 50px;
 
-        color: #fff;
-        padding: 0;
+      color: #fff;
+      padding: 0;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      color: #fff;
+      font-size: 18px;
+      i {
+        margin: 0 6px;
+        cursor: pointer;
       }
-      .btn-group {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        color: #fff;
-        font-size: 18px;
-        i {
-          margin: 0 6px;
-          cursor: pointer;
-        }
-        .checkbox {
-          color: #fff !important;
-        }
-        :global {
-          .el-checkbox__label {
-            color: #fff;
-          }
+      .checkbox {
+        color: #fff !important;
+      }
+      :global {
+        .el-checkbox__label {
+          color: #fff;
         }
       }
-      .list-container {
-        height: 100%;
-        padding-bottom: 50px;
-        overflow: auto;
-      }
+    }
+    .list-container {
+      height: 100%;
+      padding-bottom: 50px;
+      overflow: auto;
     }
   }
+}
 </style>
 
