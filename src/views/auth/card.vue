@@ -61,11 +61,6 @@ export default {
     "onChange"
   ],
   name: "card",
-  watch: {
-    data(v) {
-      console.log(v, "card data");
-    }
-  },
   computed: {
     hasInput() {
       return ["input", "kf"].includes(this.type);

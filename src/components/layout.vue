@@ -22,20 +22,21 @@
                   @input="e=>handleChange(component.param,e.target.value)"
                   :placeholder="component.content"
                 >
-                <el-select
+                <Select
+                  size="small"
                   v-if="component.type === 'select'"
                   :key="component.label || componentI"
                   :value="value[component.param]"
-                  @change="v=>handleChange(component.param,v)"
+                  @on-change="v=>handleChange(component.param,v)"
                   :placeholder="component.placeholder"
                 >
-                  <el-option
+                  <Option
                     v-for="item in component.content"
                     :key="item"
                     :label="item"
                     :value="item"
-                  ></el-option>
-                </el-select>
+                  >{{ item }}</Option>
+                </Select>
 
                 <RadioGroup
                   v-if="['radio','radiorect'].includes(component.type)"
@@ -206,7 +207,7 @@ export default {
   }
 
   .field-label {
-    width: 70px;
+    width: 74px;
     margin-right: 10px;
     font-size: 14px;
     color: #000;
@@ -245,9 +246,6 @@ export default {
     flex-direction: row;
     align-items: center;
   }
-  .button {
-    margin: 20px 0;
-    width: 100%;
-  }
+  
 }
 </style>

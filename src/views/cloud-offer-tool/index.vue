@@ -51,7 +51,7 @@
         <el-button type="text" @click="replaceStore">批量替换仓库</el-button>
         <el-checkbox v-model="isAllHotTableChecked" type="text">全选</el-checkbox>
       </div>
-      <div class="excel-box">
+      <div class="excel-box" :style="{height:excelHeight}">
         <hot-table
           :data="tableData"
           :colHeaders="colHeaders"
@@ -121,6 +121,9 @@ export default {
     layout() {
       const { type, layouts } = this;
       return layouts[`offer_${type}`];
+    },
+    excelHeight() {
+      return window.innerHeight - 226 + "px";
     }
   },
   methods: {
@@ -181,7 +184,6 @@ export default {
     nextStep() {
       const { id } = this.data.user.data;
       const params = this.params[this.type];
-
       const loading = this.$loading({
         lock: true,
         text: "验证批号中...",
@@ -423,6 +425,10 @@ $main: #44bdf7;
       padding-bottom: 50px;
       overflow: auto;
     }
+  }
+  .button {
+    margin: 20px 0;
+    width: 100%;
   }
 }
 </style>

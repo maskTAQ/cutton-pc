@@ -12,7 +12,7 @@ Vue.use(iView);
 
 Vue.config.productionTip = false
 
-
+console.warn('APP version:0.23');
 new Vue({
   router,
   store,
