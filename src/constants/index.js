@@ -10,8 +10,17 @@ const store = {
     data: offerList.concat(demandList, ['my_demand_list', 'user', 'shoppingCarList', 'my_offer_list', 'my_cloud_offer_list',`demand_list_全部`,'auth']),
 };
 const authStatusMap = ['未认证','等待审核','已认证','认证被拒绝'];
+const productTypesValue = {
+    '全部':0,
+    '新疆棉':1,
+    '进口棉$':2,
+    '进口棉￥':3,
+    '地产棉':4,
+    '拍储':5
+};
 export {
     store,
     productTypes,
-    authStatusMap
+    authStatusMap,
+    productTypesValue
 }

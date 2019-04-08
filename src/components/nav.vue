@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="path !== '/login'">
+  <div class="container" v-if="visible">
     <ul>
       <li v-for="item in navList" :key="item.path" :class="{ active: item.path === path }">
         <router-link :to="item">{{item.label}}</router-link>
@@ -32,6 +32,9 @@ export default {
   computed: {
     path() {
       return this.$route.path;
+    },
+    visible(){
+      return !['/login','/quotation-list'].includes(this.path);
     }
   }
 };

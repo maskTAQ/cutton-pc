@@ -12,7 +12,10 @@ Vue.use(iView);
 
 Vue.config.productionTip = false
 
-console.warn('APP version:0.23');
+console.table([
+  ["version", "info"],
+  ["0.26", "修改excel逻辑"]
+]);
 new Vue({
   router,
   store,

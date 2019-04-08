@@ -57,21 +57,21 @@ function send({ action, mpClientId, messageId, data }) {
         message.destinationName = mpClientId;
     }
     if (action === 'verifyBatchNumber') {
-        const { number, userId } = data;
+        const { number, userId, url ,carry} = data;
         const jsonstr = {
             msg: "请求验证批号",
             action,
             messageId: id,
             clientId: pcClientId,
             data: {
-                url: "https://s.chncot.com/app/index.php?i=6&t=0&v=9.4&from=wxapp&m=zh_dianc&sign=8fe61a41cf15856e716943ef239ca1f2&c=entry&a=wxapp&do=",
+                url,
                 do: "QCDataAdd",
                 number: number,
                 device: 6,
-                carry: { userId, time: Date.now() },
+                carry,
             },
         }
-        console.log(jsonstr, 'jsonstr')
+        console.log(jsonstr, '验证批号')
         message = new MQTT.Message(JSON.stringify(jsonstr));
         message.destinationName = "/topic/zmw/ccqsc/test/";
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="header-container">
+  <div class="header-container" v-if="visible">
     <div class="head-top" v-if="path !== '/login'">
       <div class="head-left">
         <p>欢迎来到中棉网，无差价棉花数据报价信息平台</p>
@@ -42,7 +42,7 @@
 import { mapState, mapMutations } from "vuex";
 import { authStatusMap } from "@/constants";
 export default {
-  name: "head",
+  name: "app-head",
   data() {
     return {
       authStatusMap,
@@ -63,6 +63,9 @@ export default {
     },
     isAuth() {
       return this.auth.state === 2;
+    },
+    visible(){
+      return !['/login','/quotation-list'].includes(this.path);
     }
   },
   methods: {

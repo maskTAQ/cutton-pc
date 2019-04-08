@@ -89,7 +89,7 @@ export function deleteMyCloudOffer(params) {
 }
 
 //获取excel数据
-export function getExcel(params) {
+export function uploadExcelData(params) {
     return get('PCUpdateGetExcel', params);
 }
 
@@ -104,6 +104,14 @@ export function getAuthInfo(params) {
 //获取手机号
 export function getMobile(params) {
     return get('UserPhone', params);
+}
+//获取excel列表进度 
+export function getUpdateGetExcelListPer(params) {
+    return get('PCUpdateGetExcelListPer', params);
+}
+//获取excel列表
+export function getExcelList(params) {
+    return get('PCUpdateGetExcelList', params);
 }
 export {
     login

@@ -1,6 +1,6 @@
 <template>
   <div class="cloud-offer-tool-container">
-    <div class="content" v-show="!isShowExecl">
+    <div class="content" v-show="excel.status === 'init'">
       <div class="left">
         <el-tabs v-model="type">
           <el-tab-pane v-for="item in tabList" :label="item" :name="item" :key="item"></el-tab-pane>
@@ -43,27 +43,39 @@
         </div>
       </div>
     </div>
-    <div class="execl-content" v-show="isShowExecl" v-loading="loading">
-      <div class="btn-group">
-        <el-button type="text" @click="download">下载到本地</el-button>
-        <el-button type="text" @click="prevStep">上一步</el-button>
-        <el-button type="text" @click="submit">同步发布到中棉信息网中</el-button>
-        <el-button type="text" @click="replaceStore">批量替换仓库</el-button>
-        <el-checkbox v-model="isAllHotTableChecked" type="text">全选</el-checkbox>
+    <div class="execl-content" v-show="excel.status !== 'init'">
+      <div v-if="excel.status !== 'complete'" class="progress-box">
+        <p v-show="excel.status !== 'getProgress'">{{excel.msg}}</p>
+        <template v-show="excel.status === 'getProgress'">
+          <p>生成excel中...</p>
+          <el-progress type="circle" :percentage="excel.progress"></el-progress>
+        </template>
       </div>
-      <div class="excel-box" :style="{height:excelHeight}">
-        <hot-table
-          :data="tableData"
-          :colHeaders="colHeaders"
-          :rowHeaders="true"
-          :columns="columns"
-          :columnSorting="true"
-          :observeChanges="true"
-          width="100%"
-          height="100%"
-          ref="hotTable"
-          licenseKey="non-commercial-and-evaluation"
-        ></hot-table>
+      <div v-show="excel.status === 'complete'">
+        <div class="btn-group">
+          <el-button type="text" @click="download">下载到本地</el-button>
+          <el-button type="text" @click="prevStep">上一步</el-button>
+          <el-button type="text" @click="submit">同步发布到中棉信息网中</el-button>
+          <el-button type="text" @click="replaceStore">批量替换仓库</el-button>
+          <el-checkbox v-model="isAllHotTableChecked" type="text">全选</el-checkbox>
+        </div>
+        <div class="excel-box" :style="{height:excelHeight}">
+          <el-tabs v-model="excel.activeTab" type="card" @tab-click="handleExcelTabClick">
+            <el-tab-pane v-for="item in excel.tabList" :label="item" :name="item" :key="item"></el-tab-pane>
+          </el-tabs>
+          <hot-table
+            :data="tableData"
+            :colHeaders="colHeaders"
+            :rowHeaders="true"
+            :columns="columns"
+            :columnSorting="true"
+            :observeChanges="true"
+            width="100%"
+            height="100%"
+            ref="hotTable"
+            licenseKey="non-commercial-and-evaluation"
+          ></hot-table>
+        </div>
       </div>
     </div>
   </div>
@@ -84,7 +96,9 @@ import {
   doSubmit,
   deleteMyCloudOffer,
   getSpotIndicators,
-  getExcel
+  uploadExcelData,
+  getUpdateGetExcelListPer,
+  getExcelList
 } from "@/apis";
 import { send } from "@/apis/ws";
 export default {
@@ -92,7 +106,6 @@ export default {
   data() {
     return {
       type: "新疆棉",
-      isShowExecl: false,
       isAllChecked: false,
       isAllHotTableChecked: false,
       checkedList: [],
@@ -100,7 +113,14 @@ export default {
       columns: [],
       tableData: [],
       params: {},
-      loading: false
+      loading: false,
+      excel: {
+        status: "init", //upload  getProgress getData complete error
+        msg: "",
+        progress: 0,
+        tabList: [],
+        activeTab: ""
+      }
     };
   },
   created() {
@@ -179,32 +199,63 @@ export default {
     },
     handleParamsChange({ key, value }) {
       const { type } = this;
-      this.params[type] = { ...this.params[type], [key]: value };
+      const nextParams = { ...this.params[type] };
+      //设置批号前 情况之前设置的批号 当验证批号时确保同时最多存在一个批号的字段
+      if (key.includes("批号")) {
+        for (const key in nextParams) {
+          if (key.includes("批号")) {
+            nextParams[key] = "";
+          }
+        }
+      }
+      this.params[type] = { ...nextParams, [key]: value };
+    },
+    setExcelStatus(data) {
+      console.log(data, "data");
+      this.excel = {
+        ...this.excel,
+        ...data
+      };
     },
     nextStep() {
-      const { id } = this.data.user.data;
-      const params = this.params[this.type];
-      const loading = this.$loading({
-        lock: true,
-        text: "验证批号中...",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
-      });
-      send({
-        action: "verifyBatchNumber",
-        data: { number: params["现货批号"], userId: id }
-      })
-        .then(res => {
-          loading.close();
-          this.isShowExecl = true;
-        })
-        .catch(e => {
-          loading.close();
-          Message.error(e);
+      const { status, data } = this.layout;
+      if (status === "success") {
+        const { id } = this.data.user.data;
+        const params = this.params[this.type];
+        const { url, action } = data.verify;
+
+        const loading = this.$loading({
+          lock: true,
+          text: "验证批号中...",
+          spinner: "el-icon-loading",
+          background: "rgba(0, 0, 0, 0.7)"
         });
+        //找批号字段
+        let number = "";
+        for (const key in params) {
+          if (key.includes("批号")) {
+            number = params[key];
+            break;
+          }
+        }
+        send({
+          action,
+          data: { number: number, userId: id, url, carry: data.carry }
+        })
+          .then(res => {
+            loading.close();
+            this.uploadExcelData();
+          })
+          .catch(e => {
+            loading.close();
+            Message.error(e);
+          });
+      }
     },
     prevStep() {
-      this.isShowExecl = false;
+      this.excel = {
+        status: "init"
+      };
     },
     submit() {
       const { data } = this.layout;
@@ -245,37 +296,84 @@ export default {
         alert(1);
       }
     },
-    getExeclData() {
+    setExcelData() {
+      const { data, activeTab, tabList } = this.excel;
+      const i = tabList.indexOf(activeTab);
+      console.log(i, "i");
+      const [colHeaders, ...tableData] = data[i].data;
+      this.colHeaders = ["选择"].concat(colHeaders);
+      this.tableData = tableData.map(row => {
+        const nextRow = [...row];
+        nextRow.unshift(false);
+        return nextRow;
+      });
+      const columns = this.colHeaders.map(item => ({}));
+      this.columns = [
+        {
+          type: "checkbox"
+        }
+      ].concat(columns);
+    },
+    handleExcelTabClick(e) {
+      this.setExcelData();
+    },
+    uploadExcelData() {
       const { data } = this.layout;
       const { id } = this.data.user.data;
       const { params } = this.$refs.layout;
-      this.loading = true;
-      getExcel({
+      this.setExcelStatus({
+        status: "upload",
+        msg: "上传excel数据中"
+      });
+      uploadExcelData({
         //加工批号: "62044171101" || params["批号"],
         用户ID: id,
         ...data.carry,
         ...params
       })
-        .then(res => {
-          const [colHeaders, ...tableData] = res;
-          this.colHeaders = ["选择"].concat(colHeaders);
-          this.tableData = tableData.map(row => {
-            const nextRow = [...row];
-            nextRow.unshift(false);
-            return nextRow;
+        .then(() => {
+          this.setExcelStatus({
+            status: "getProgress",
+            msg: "开始获取进度"
           });
-          const columns = this.colHeaders.map(item => ({}));
-          this.columns = [
-            {
-              type: "checkbox"
-            }
-          ].concat(columns);
 
-          this.loading = false;
+          this.getProgress();
         })
         .catch(e => {
-          this.loading = false;
+          this.setExcelStatus({
+            status: "error",
+            msg: "上传excel数据失败"
+          });
         });
+    },
+    getExeclData() {
+      const { data } = this.layout;
+      const { id } = this.data.user.data;
+      const { params } = this.$refs.layout;
+      this.setExcelStatus({
+        status: "getData",
+        msg: "获取excellist"
+      });
+      getExcelList({ ...data.carry, excel: true })
+        .then(res => {
+          const tabList = res.map(item => item.title);
+          this.setExcelStatus({
+            status: "complete",
+            msg: "准备渲染excel",
+            data: res,
+            tabList,
+            activeTab: tabList[0]
+          });
+          this.setExcelData();
+        })
+        .catch(e => {
+          console.log(e, "e");
+          this.setExcelStatus({
+            status: "error",
+            msg: "获取excel列表数据失败"
+          });
+        });
+      return;
     },
     replaceStore() {
       this.$prompt("请输入仓库地址", "", {
@@ -288,7 +386,7 @@ export default {
           nextData.map(row => {
             const [checked] = row;
             if (checked) {
-              row[2] = value;
+              row[3] = value;
             }
             row[0] = false;
           });
@@ -308,6 +406,33 @@ export default {
         columnHeaders: true,
         range: [0, 1]
       });
+    },
+    getProgress() {
+      clearTimeout(this.timeout);
+      const { id } = this.data.user.data;
+      getUpdateGetExcelListPer(this.layout.data.carry)
+        .then(res => {
+          const { percent } = res;
+          if (+percent === 100) {
+            this.setExcelStatus({
+              status: "getProgress",
+              progress: percent,
+              msg: "进度100%"
+            });
+            this.getExeclData();
+          } else {
+            this.setExcelStatus({
+              status: "getProgress",
+              progress: percent,
+              msg: "进度" + percent + "%"
+            });
+            this.timeout = setTimeout(this.getProgress, 2000);
+          }
+        })
+        .catch(e => {
+          console.log(e, "e");
+          this.getProgress();
+        });
     }
   },
   watch: {
@@ -347,11 +472,6 @@ export default {
         this.isAllChecked = true;
       } else {
         this.isAllChecked = false;
-      }
-    },
-    isShowExecl(v) {
-      if (v) {
-        this.getExeclData();
       }
     }
   },
@@ -420,6 +540,7 @@ $main: #44bdf7;
         }
       }
     }
+
     .list-container {
       height: 100%;
       padding-bottom: 50px;
@@ -429,6 +550,15 @@ $main: #44bdf7;
   .button {
     margin: 20px 0;
     width: 100%;
+  }
+}
+.execl-content {
+  .progress-box {
+    display: flex;
+    height: 300px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>

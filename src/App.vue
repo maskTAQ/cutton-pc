@@ -21,10 +21,7 @@ export default {
 </script>
 
 <style lang="scss">
-html {
-  height: 100%;
-  background: #f9f9f9;
-}
+
 /* 
 #app {
   height: 100%;

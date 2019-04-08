@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
+import Home from './views/home/index.vue'
 import store from './store';
 import Login from './views/login/index.vue';
 import CloudOfferTool from './views/cloud-offer-tool/index.vue';
+import QuotationList from './views/quotation-list.vue';
 import Auth from './views/auth';
 import { Message } from 'element-ui';
 
@@ -32,6 +33,11 @@ const router = new Router({
       path: '/auth',
       name: 'auth',
       component: Auth
+    },
+    {
+      path: '/quotation-list',
+      name: 'quotation-list',
+      component: QuotationList
     },
     {
       path: '/about',

@@ -89,7 +89,7 @@ export default new Vuex.Store({
             type,
             key,
             payload: {
-              status: 'success',
+              status: 'error',
               loading: false,
               msg
             }
