@@ -53,11 +53,19 @@
       </div>
       <div v-show="excel.status === 'complete'">
         <div class="btn-group">
-          <el-button type="text" @click="download">下载到本地</el-button>
-          <el-button type="text" @click="prevStep">上一步</el-button>
-          <el-button type="text" @click="submit">同步发布到中棉信息网中</el-button>
-          <el-button type="text" @click="replaceStore">批量替换仓库</el-button>
-          <el-checkbox v-model="isAllHotTableChecked" type="text">全选</el-checkbox>
+          <el-button size="mini" @click="prevStep">重新导入</el-button>
+          <el-button size="mini">删除</el-button>
+          <el-button size="mini" @click="replaceStore" v-show="isOnlyModifyStore">批量修改仓库</el-button>
+          <el-button size="mini" @click="replaceStore" v-show="!isOnlyModifyStore">添加</el-button>
+          <el-button size="mini" @click="replaceStore" v-show="!isOnlyModifyStore">批量修改</el-button>
+          <el-button size="mini" class="checkbox-btn">
+            <el-checkbox v-model="isAllHotTableChecked" size="mini">全选</el-checkbox>
+          </el-button>
+          <el-button size="mini" class="checkbox-btn">
+            <el-checkbox v-model="isHighlight" size="mini">重复项高亮</el-checkbox>
+          </el-button>
+          <el-button size="mini" @click="download">下载excel</el-button>
+          <el-button size="mini" @click="submit">发布</el-button>
         </div>
         <div class="excel-box" :style="{height:excelHeight}">
           <el-tabs v-model="excel.activeTab" type="card" @tab-click="handleExcelTabClick">
@@ -70,6 +78,7 @@
             :columns="columns"
             :columnSorting="true"
             :observeChanges="true"
+            :afterChange="afterChange"
             width="100%"
             height="100%"
             ref="hotTable"
@@ -84,11 +93,12 @@
 <script>
 import { HotTable } from "@handsontable/vue";
 import { mapActions, mapState } from "vuex";
+import _ from "lodash";
 import { Message } from "element-ui";
 import ListWrapper from "@/components/list-wrapper.vue";
 import StatusBox from "@/components/status-box.vue";
 import Layout from "@/components/layout.vue";
-
+import Handsontable from "handsontable";
 import CardItem from "./card";
 import {
   getMyCloudOfferList,
@@ -101,6 +111,7 @@ import {
   getExcelList
 } from "@/apis";
 import { send } from "@/apis/ws";
+const disabledColumns = ["参考价", "报价"];
 export default {
   name: "cloud-offer-tool",
   data() {
@@ -119,8 +130,14 @@ export default {
         msg: "",
         progress: 0,
         tabList: [],
-        activeTab: ""
-      }
+        activeTab: "",
+        hotTableConfigs: [
+          // {
+          //   columns:[]
+          // }
+        ]
+      },
+      isHighlight: false
     };
   },
   created() {
@@ -141,6 +158,10 @@ export default {
     layout() {
       const { type, layouts } = this;
       return layouts[`offer_${type}`];
+    },
+    isOnlyModifyStore() {
+      const { type } = this;
+      return ["新疆棉", "地产棉", "拍储"].includes(type);
     },
     excelHeight() {
       return window.innerHeight - 226 + "px";
@@ -210,16 +231,13 @@ export default {
       }
       this.params[type] = { ...nextParams, [key]: value };
     },
-    setExcelStatus(data) {
-      console.log(data, "data");
-      this.excel = {
-        ...this.excel,
-        ...data
-      };
-    },
+
     nextStep() {
       const { status, data } = this.layout;
       if (status === "success") {
+        if (this.type !== "新疆棉") {
+          return this.uploadExcelData();
+        }
         const { id } = this.data.user.data;
         const params = this.params[this.type];
         const { url, action } = data.verify;
@@ -238,12 +256,21 @@ export default {
             break;
           }
         }
+        // this.setExcelStatus({
+        //   status: "complete",
+        //   msg: "准备渲染excel"
+        //   // data: res,
+        //   // tabList,
+        //   // activeTab: tabList[0]
+        // });
+
         send({
           action,
           data: { number: number, userId: id, url, carry: data.carry }
         })
           .then(res => {
             loading.close();
+
             this.uploadExcelData();
           })
           .catch(e => {
@@ -251,6 +278,148 @@ export default {
             Message.error(e);
           });
       }
+    },
+    uploadExcelData() {
+      const { data } = this.layout;
+      const { id } = this.data.user.data;
+      const { params } = this.$refs.layout;
+      this.setExcelStatus({
+        status: "upload",
+        msg: "上传excel数据中"
+      });
+      uploadExcelData({
+        //加工批号: "62044171101" || params["批号"],
+        用户ID: id,
+        ...data.carry,
+        ...params
+      })
+        .then(() => {
+          this.setExcelStatus({
+            status: "getProgress",
+            msg: "开始获取进度"
+          });
+
+          this.getProgress();
+        })
+        .catch(e => {
+          this.setExcelStatus({
+            status: "error",
+            msg: "上传excel数据失败"
+          });
+        });
+    },
+    getProgress() {
+      clearTimeout(this.timeout);
+      const { id } = this.data.user.data;
+      getUpdateGetExcelListPer(this.layout.data.carry)
+        .then(res => {
+          const { percent } = res;
+          if (+percent === 100) {
+            this.setExcelStatus({
+              status: "getProgress",
+              progress: percent,
+              msg: "进度100%"
+            });
+            this.getExeclData();
+          } else {
+            this.setExcelStatus({
+              status: "getProgress",
+              progress: percent,
+              msg: "进度" + percent + "%"
+            });
+            this.timeout = setTimeout(this.getProgress, 2000);
+          }
+        })
+        .catch(e => {
+          console.log(e, "e");
+          this.getProgress();
+        });
+    },
+    setExcelStatus(data) {
+      this.excel = {
+        ...this.excel,
+        ...data
+      };
+    },
+    getExeclData() {
+      const { data } = this.layout;
+      const { id } = this.data.user.data;
+      const { params } = this.$refs.layout;
+      this.setExcelStatus({
+        status: "getData",
+        msg: "获取excellist"
+      });
+      getExcelList({ ...data.carry, excel: true })
+        .then(res => {
+          const tabList = res.map(item => item.title);
+
+          this.setExcelStatus({
+            status: "complete",
+            msg: "准备渲染excel",
+            data: res,
+            tabList,
+            activeTab: tabList[0]
+          });
+          setTimeout(this.initExcelData, 100);
+        })
+        .catch(e => {
+          console.log(e, "e");
+          this.setExcelStatus({
+            status: "error",
+            msg: "获取excel列表数据失败"
+          });
+        });
+      return;
+    },
+    initExcelData() {
+      const { data, activeTab, tabList, hotTableConfigs } = this.excel;
+      const i = tabList.indexOf(activeTab);
+      if (hotTableConfigs[i]) {
+        this.updateHotData(hotTableConfigs[i]);
+        return;
+      }
+      const [colHeaders, ...tableData] = data[i].data;
+      const fullColHeaders = ["选择"].concat(colHeaders);
+      const fullTableData = tableData.map(row => {
+        const nextRow = [...row];
+        nextRow.unshift(false);
+        return nextRow;
+      });
+
+      const that = this;
+      const columns = fullColHeaders.map((item, i) => {
+        if (i === 0) {
+          return {
+            type: "checkbox"
+          };
+        }
+        return {
+          readOnly: disabledColumns.includes(item),
+          renderer: function(
+            instance,
+            td,
+            row,
+            col,
+            prop,
+            value,
+            cellProperties
+          ) {
+            const num = that.num(value);
+            if (that.isHighlight && num > 1) {
+              td.style.color = "red";
+            }
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            return td;
+          }
+        };
+      });
+      const hotTableConfig = {
+        colHeaders: fullColHeaders,
+        data: fullTableData,
+        columns
+      };
+      this.excel.hotTableConfigs[i] = hotTableConfig;
+      this.updateHotData(hotTableConfig);
     },
     prevStep() {
       this.excel = {
@@ -296,85 +465,66 @@ export default {
         alert(1);
       }
     },
-    setExcelData() {
-      const { data, activeTab, tabList } = this.excel;
+    num(v) {
+      let i = 0;
+      // a.forEach(item => {
+      //   item === v && i++;
+      // });
+      this.tableData.forEach(row => {
+        row.forEach(value => {
+          if (value === v) {
+            i++;
+          }
+        });
+      });
+      return i;
+    },
+    afterChange(v, type) {
+      if (type === "edit") {
+        const { colHeaders, tableData } = this;
+        const [rowI, colI] = v[0];
+        const nextV = _.cloneDeep(tableData);
+        const expressionList = ["基差升贴水+参考价=报价"];
+        expressionList.forEach(expression => {
+          const [e, C] = expression.split("=");
+          const [A, B] = e.split("+");
+          const AI = colHeaders.indexOf(A);
+          const BI = colHeaders.indexOf(B);
+          const CI = colHeaders.indexOf(C);
+          if ([AI, BI, CI].includes(colI)) {
+            const row = nextV[rowI];
+            const aValue = Number(row[AI]);
+            const bValue = Number(row[BI]);
+            if (typeof aValue === "number" && typeof bValue === "number") {
+              row[CI] = aValue + bValue;
+              console.log(row[CI], "row[CI]");
+            } else {
+              row[CI] = "--";
+            }
+            // console.log(tableData[rowI],row, " row");
+          }
+        });
+        this.updateHotData({ data: nextV });
+      }
+    },
+    updateHotData(config) {
+      const { data, activeTab, tabList, hotTableConfigs } = this.excel;
       const i = tabList.indexOf(activeTab);
-      console.log(i, "i");
-      const [colHeaders, ...tableData] = data[i].data;
-      this.colHeaders = ["选择"].concat(colHeaders);
-      this.tableData = tableData.map(row => {
-        const nextRow = [...row];
-        nextRow.unshift(false);
-        return nextRow;
-      });
-      const columns = this.colHeaders.map(item => ({}));
-      this.columns = [
-        {
-          type: "checkbox"
-        }
-      ].concat(columns);
-    },
-    handleExcelTabClick(e) {
-      this.setExcelData();
-    },
-    uploadExcelData() {
-      const { data } = this.layout;
-      const { id } = this.data.user.data;
-      const { params } = this.$refs.layout;
-      this.setExcelStatus({
-        status: "upload",
-        msg: "上传excel数据中"
-      });
-      uploadExcelData({
-        //加工批号: "62044171101" || params["批号"],
-        用户ID: id,
-        ...data.carry,
-        ...params
-      })
-        .then(() => {
-          this.setExcelStatus({
-            status: "getProgress",
-            msg: "开始获取进度"
-          });
 
-          this.getProgress();
-        })
-        .catch(e => {
-          this.setExcelStatus({
-            status: "error",
-            msg: "上传excel数据失败"
-          });
-        });
+      const hot = this.$refs.hotTable;
+      hot.hotInstance.updateSettings(config);
+      if (config.data) {
+        config.tableData = config.data;
+        delete config.data;
+      }
+      Object.assign(this, config);
+      this.excel.hotTableConfigs[i] = config;
     },
-    getExeclData() {
-      const { data } = this.layout;
-      const { id } = this.data.user.data;
-      const { params } = this.$refs.layout;
-      this.setExcelStatus({
-        status: "getData",
-        msg: "获取excellist"
-      });
-      getExcelList({ ...data.carry, excel: true })
-        .then(res => {
-          const tabList = res.map(item => item.title);
-          this.setExcelStatus({
-            status: "complete",
-            msg: "准备渲染excel",
-            data: res,
-            tabList,
-            activeTab: tabList[0]
-          });
-          this.setExcelData();
-        })
-        .catch(e => {
-          console.log(e, "e");
-          this.setExcelStatus({
-            status: "error",
-            msg: "获取excel列表数据失败"
-          });
-        });
-      return;
+
+    handleExcelTabClick(e) {
+      this.initExcelData();
     },
+
     replaceStore() {
       this.$prompt("请输入仓库地址", "", {
         confirmButtonText: "确定",
@@ -383,12 +533,17 @@ export default {
         .then(({ value }) => {
           const hot = this.$refs.hotTable;
           const nextData = this.tableData;
+          const { colHeaders } = this;
           nextData.map(row => {
             const [checked] = row;
             if (checked) {
-              row[3] = value;
+              row[colHeaders.indexOf("仓库")] = value;
             }
             row[0] = false;
+            return row;
+          });
+          this.updateHotData({
+            data: nextData
           });
           this.isAllHotTableChecked = false;
         })
@@ -406,33 +561,6 @@ export default {
         columnHeaders: true,
         range: [0, 1]
       });
-    },
-    getProgress() {
-      clearTimeout(this.timeout);
-      const { id } = this.data.user.data;
-      getUpdateGetExcelListPer(this.layout.data.carry)
-        .then(res => {
-          const { percent } = res;
-          if (+percent === 100) {
-            this.setExcelStatus({
-              status: "getProgress",
-              progress: percent,
-              msg: "进度100%"
-            });
-            this.getExeclData();
-          } else {
-            this.setExcelStatus({
-              status: "getProgress",
-              progress: percent,
-              msg: "进度" + percent + "%"
-            });
-            this.timeout = setTimeout(this.getProgress, 2000);
-          }
-        })
-        .catch(e => {
-          console.log(e, "e");
-          this.getProgress();
-        });
     }
   },
   watch: {
@@ -457,14 +585,18 @@ export default {
           row[0] = true;
           return row;
         });
-        this.tableData = nextData;
       } else {
         nextData.map(row => {
           row[0] = false;
           return row;
         });
-        this.tableData = nextData;
       }
+      this.updateHotData({
+        data: nextData
+      });
+    },
+    isHighlight() {
+      this.initExcelData();
     },
     checkedList(v) {
       const { data } = this.my_cloud_offer_list;
@@ -485,6 +617,15 @@ export default {
   }
 };
 </script>
+<style lang="scss">
+.excel-box {
+  .el-tabs__header {
+    margin-bottom: 0px;
+    border: none;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 @import "~handsontable/dist/handsontable.full.css";
 $main: #44bdf7;
@@ -553,6 +694,16 @@ $main: #44bdf7;
   }
 }
 .execl-content {
+  .btn-group {
+    height: 60px;
+    padding: 0 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .checkbox-btn {
+      padding: 3.5px 10px;
+    }
+  }
   .progress-box {
     display: flex;
     height: 300px;

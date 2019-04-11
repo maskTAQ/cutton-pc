@@ -175,6 +175,14 @@ export default {
   }
 };
 </script>
+<style lang="scss">
+.field-content{
+  .upload-box{
+    flex:1;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 @import "../platform.scss";
 .layout-container {
