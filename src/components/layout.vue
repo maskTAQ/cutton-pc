@@ -38,6 +38,14 @@
                   >{{ item }}</Option>
                 </Select>
 
+                
+                <LayoutSlide
+                   v-if="component.type === 'slide'"
+                  :key="component.label || componentI"
+                  :data="component"
+                  :value="value[component.param]"
+                  @onChange="handleChange(component.param,$event)"
+                />
                 <RadioGroup
                   v-if="['radio','radiorect'].includes(component.type)"
                   :key="component.label || componentI"
@@ -86,6 +94,7 @@
 <script>
 import { getOfferList } from "@/apis";
 import { commonParmas } from "@/apis/base.js";
+import LayoutSlide from './layout-slide';
 export default {
   props: ["data", "params", "onChange"],
   data() {
@@ -172,13 +181,16 @@ export default {
 
       this.$message.success("上传成功");
     }
+  },
+  components:{
+    LayoutSlide
   }
 };
 </script>
 <style lang="scss">
-.field-content{
-  .upload-box{
-    flex:1;
+.field-content {
+  .upload-box {
+    flex: 1;
   }
 }
 </style>
@@ -254,6 +266,5 @@ export default {
     flex-direction: row;
     align-items: center;
   }
-  
 }
 </style>

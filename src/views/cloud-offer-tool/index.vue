@@ -157,6 +157,7 @@ export default {
     }),
     layout() {
       const { type, layouts } = this;
+      console.log(layouts[`offer_${type}`],'layout')
       return layouts[`offer_${type}`];
     },
     isOnlyModifyStore() {
@@ -283,6 +284,8 @@ export default {
       const { data } = this.layout;
       const { id } = this.data.user.data;
       const { params } = this.$refs.layout;
+      console.log(params,'params');
+      return;
       this.setExcelStatus({
         status: "upload",
         msg: "上传excel数据中"
@@ -484,24 +487,58 @@ export default {
         const { colHeaders, tableData } = this;
         const [rowI, colI] = v[0];
         const nextV = _.cloneDeep(tableData);
-        const expressionList = ["基差升贴水+参考价=报价"];
+        const expressionList = [
+          "基差升贴水+参考价=报价",
+          "公重重量/公重报价*毛重=毛重报价",
+          "毛重重量/毛重报价*公重=公重报价"
+        ];
         expressionList.forEach(expression => {
-          const [e, C] = expression.split("=");
-          const [A, B] = e.split("+");
-          const AI = colHeaders.indexOf(A);
-          const BI = colHeaders.indexOf(B);
-          const CI = colHeaders.indexOf(C);
-          if ([AI, BI, CI].includes(colI)) {
-            const row = nextV[rowI];
-            const aValue = Number(row[AI]);
-            const bValue = Number(row[BI]);
-            if (typeof aValue === "number" && typeof bValue === "number") {
-              row[CI] = aValue + bValue;
-              console.log(row[CI], "row[CI]");
-            } else {
-              row[CI] = "--";
+          const [e, D] = expression.split("=");
+          if (e.includes("+")) {
+            const [A, B] = e.split("+");
+            const AI = colHeaders.indexOf(A);
+            const BI = colHeaders.indexOf(B);
+            const DI = colHeaders.indexOf(D);
+            if ([AI, BI, DI].includes(colI)) {
+              const row = nextV[rowI];
+              const aValue = Number(row[AI]);
+              const bValue = Number(row[BI]);
+              if (typeof aValue === "number" && typeof bValue === "number") {
+                row[DI] = aValue + bValue;
+              } else {
+                row[DI] = "--";
+              }
+              // console.log(tableData[rowI],row, " row");
             }
-            // console.log(tableData[rowI],row, " row");
+          } else {
+            const [
+              all,
+              A,
+              B,
+              C
+            ] = /([\u4e00-\u9fa5]+)\/([\u4e00-\u9fa5]+)\*([\u4e00-\u9fa5]+)/gm.exec(
+              e
+            );
+            const AI = colHeaders.indexOf(A);
+            const BI = colHeaders.indexOf(B);
+            const CI = colHeaders.indexOf(C);
+            const DI = colHeaders.indexOf(D);
+            if ([AI, BI, CI, DI].includes(colI)) {
+              const row = nextV[rowI];
+              const aValue = Number(row[AI]);
+              const bValue = Number(row[BI]);
+              const cValue = Number(row[CI]);
+              if (
+                typeof aValue === "number" &&
+                typeof bValue === "number" &&
+                typeof cValue === "number"
+              ) {
+                row[DI] = (aValue / bValue) * cValue;
+              } else {
+                row[DI] = "--";
+              }
+              // console.log(tableData[rowI],row, " row");
+            }
           }
         });
         this.updateHotData({ data: nextV });

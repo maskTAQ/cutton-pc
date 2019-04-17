@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 
 console.table([
   ["version", "info"],
-  ["0.26", "只有当为新疆棉才验证批号、修改工具栏样式"]
+  ["0.28", "添加 a/b*c = d 的实现"]
 ]);
 new Vue({
   router,
