@@ -12,14 +12,7 @@
 <script>
 export default {
   name: "layout-slide",
-  props: {
-    value: {
-      type: String
-    },
-    data: {
-      type: Object
-    }
-  },
+  props:['value','data'],
   computed: {
     range() {
       const [start, end] = this.data.content;

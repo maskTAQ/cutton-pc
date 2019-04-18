@@ -157,7 +157,6 @@ export default {
     }),
     layout() {
       const { type, layouts } = this;
-      console.log(layouts[`offer_${type}`],'layout')
       return layouts[`offer_${type}`];
     },
     isOnlyModifyStore() {
@@ -177,10 +176,10 @@ export default {
       });
       this.params = params;
     },
-    getOfferLayout() {
+    getOfferLayout(v) {
       const { id } = this.data.user.data;
-      const { type, tabList, layouts } = this;
-      const key = `offer_${type}`;
+      const { type, tabList, layouts ={}} = this;
+      const key = `offer_${ v || type}`;
       const { status } = layouts[key];
       if (status !== "success" && status !== "loading") {
         this.asyncActionWrapper({
@@ -284,8 +283,7 @@ export default {
       const { data } = this.layout;
       const { id } = this.data.user.data;
       const { params } = this.$refs.layout;
-      console.log(params,'params');
-      return;
+      
       this.setExcelStatus({
         status: "upload",
         msg: "上传excel数据中"
@@ -294,7 +292,7 @@ export default {
         //加工批号: "62044171101" || params["批号"],
         用户ID: id,
         ...data.carry,
-        ...params
+        ...Object.assign(this.getPreValue(data),params)
       })
         .then(() => {
           this.setExcelStatus({
@@ -602,7 +600,7 @@ export default {
   },
   watch: {
     type(v) {
-      this.getOfferLayout();
+      this.getOfferLayout(v);
     },
     isAllChecked(v) {
       const { data } = this.my_cloud_offer_list;

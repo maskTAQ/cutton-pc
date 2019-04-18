@@ -5,7 +5,7 @@
 
       <div class="area-content">
         <div
-          :class="{'field-row':isShowField(field.visible)}"
+          :class="{'field-row':isShowField(field.visible,field)}"
           v-for="(field,fidldI) in area.data"
           :id="field.title+field.visible"
           :key="field.title||fidldI"
@@ -16,7 +16,7 @@
               <template v-for="(component,componentI) in field.components">
                 <input
                   class="input"
-                  v-if="component.type === 'input'"
+                  v-if="isShowField(component.visible) && component.type === 'input'"
                   :key="component.content || componentI"
                   :value="value[component.param]"
                   @input="e=>handleChange(component.param,e.target.value)"
@@ -24,7 +24,7 @@
                 >
                 <Select
                   size="small"
-                  v-if="component.type === 'select'"
+                  v-if="isShowField(component.visible) && component.type === 'select'"
                   :key="component.label || componentI"
                   :value="value[component.param]"
                   @on-change="v=>handleChange(component.param,v)"
@@ -40,14 +40,14 @@
 
                 
                 <LayoutSlide
-                   v-if="component.type === 'slide'"
+                   v-if="isShowField(component.visible) && component.type === 'slide'"
                   :key="component.label || componentI"
                   :data="component"
                   :value="value[component.param]"
                   @onChange="handleChange(component.param,$event)"
                 />
                 <RadioGroup
-                  v-if="['radio','radiorect'].includes(component.type)"
+                  v-if="isShowField(component.visible) && ['radio','radiorect'].includes(component.type)"
                   :key="component.label || componentI"
                   :value="value[component.param]"
                   @on-change="v=>handleChange(component.param,v)"
@@ -55,7 +55,7 @@
                   <Radio v-for="item in component.content" :label="item" :key="item">{{item}}</Radio>
                 </RadioGroup>
                 <CheckboxGroup
-                  v-if="['check','checkcircle'].includes(component.type)"
+                  v-if="isShowField(component.visible) && ['check','checkcircle'].includes(component.type)"
                   :key="component.label || componentI"
                   :value="value[component.param]"
                   @on-change="v=>handleChange(component.param,v)"
@@ -64,7 +64,7 @@
                 </CheckboxGroup>
 
                 <el-upload
-                  v-if="component.type === 'input-file'"
+                  v-if="isShowField(component.visible) && component.type === 'input-file'"
                   :key="component.label || componentI"
                   :name="component.param"
                   :data="updataParams"
@@ -78,7 +78,7 @@
                   <el-button size="small" type="text">点击上传</el-button>
                 </el-upload>
                 <p
-                  v-if="component.type === 'text'"
+                  v-if="isShowField(component.visible) && component.type === 'text'"
                   :key="component.label || componentI"
                   :placeholder="component.placeholder"
                   class="text"
@@ -132,7 +132,7 @@ export default {
         value
       });
     },
-    isShowField(visible) {
+    isShowField(visible,d) {
       const { value: params } = this;
 
       let isVisible = true;

@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 
 console.table([
   ["version", "info"],
-  ["0.28", "添加 a/b*c = d 的实现"]
+  ["0.29", "调用PCUpdateGetExcel接口时提供控件数据"]
 ]);
 new Vue({
   router,
