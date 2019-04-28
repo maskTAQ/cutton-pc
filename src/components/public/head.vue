@@ -10,7 +10,7 @@
           <span class="approve">{{authStatusMap[auth.state]}}</span>
           <div class="btn" @click="handleLogout">退出</div>
         </div>
-        <div v-show="isAuth">
+        <div v-show="isAuth" @click="goAuth" class="company-info">
           <span class="mainColor">|&nbsp;企业信息&nbsp;|&nbsp;</span>
           <span>
             客服咨询热线：
@@ -73,6 +73,9 @@ export default {
     handleLogout() {
       this.logout();
       this.$router.push("login");
+    },
+    goAuth(){
+      this.$router.push("auth");
     }
   }
 };
@@ -117,6 +120,9 @@ export default {
     }
     .mainColor {
       color: #2da22e;
+    }
+    .company-info{
+      cursor: pointer;
     }
   }
   .head-bottom {

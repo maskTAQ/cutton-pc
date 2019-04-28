@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 
 console.table([
   ["version", "info"],
-  ["0.29", "调用PCUpdateGetExcel接口时提供控件数据"]
+  ["0.4", "拍储验证批号"]
 ]);
 new Vue({
   router,

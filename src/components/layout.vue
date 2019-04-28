@@ -38,11 +38,18 @@
                   >{{ item }}</Option>
                 </Select>
 
-                
                 <LayoutSlide
-                   v-if="isShowField(component.visible) && component.type === 'slide'"
+                  v-if="isShowField(component.visible) && component.type === 'slide'"
                   :key="component.label || componentI"
                   :data="component"
+                  :value="value[component.param]"
+                  @onChange="handleChange(component.param,$event)"
+                />
+
+                <LayoutDatePicker
+                  v-if="isShowField(component.visible) && component.type === 'datepicker'"
+                  :key="component.label || componentI"
+                 :data="component"
                   :value="value[component.param]"
                   @onChange="handleChange(component.param,$event)"
                 />
@@ -94,7 +101,8 @@
 <script>
 import { getOfferList } from "@/apis";
 import { commonParmas } from "@/apis/base.js";
-import LayoutSlide from './layout-slide';
+import LayoutSlide from "./layout-slide";
+import LayoutDatePicker from './layout-datepicker';
 export default {
   props: ["data", "params", "onChange"],
   data() {
@@ -132,7 +140,7 @@ export default {
         value
       });
     },
-    isShowField(visible,d) {
+    isShowField(visible, d) {
       const { value: params } = this;
 
       let isVisible = true;
@@ -182,8 +190,9 @@ export default {
       this.$message.success("上传成功");
     }
   },
-  components:{
-    LayoutSlide
+  components: {
+    LayoutSlide,
+    LayoutDatePicker
   }
 };
 </script>

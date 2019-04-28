@@ -101,6 +101,7 @@ function send({ action, mpClientId, messageId, data }) {
 }
 function onMessageArrived(message) {
     const data = JSON.parse(message.payloadString);
+    console.log(data,'服务器消息');
     const { action, messageId, pcClientId, mpClientId } = data;
     if (action === "login") {
         send({

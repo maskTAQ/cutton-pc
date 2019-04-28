@@ -54,10 +54,10 @@
       <div v-show="excel.status === 'complete'">
         <div class="btn-group">
           <el-button size="mini" @click="prevStep">重新导入</el-button>
-          <el-button size="mini">删除</el-button>
+          <el-button size="mini" @click="deleteRows">删除</el-button>
           <el-button size="mini" @click="replaceStore" v-show="isOnlyModifyStore">批量修改仓库</el-button>
           <el-button size="mini" @click="replaceStore" v-show="!isOnlyModifyStore">添加</el-button>
-          <el-button size="mini" @click="replaceStore" v-show="!isOnlyModifyStore">批量修改</el-button>
+          <el-button size="mini" @click="batchReplaceColumn" v-show="!isOnlyModifyStore">批量修改</el-button>
           <el-button size="mini" class="checkbox-btn">
             <el-checkbox v-model="isAllHotTableChecked" size="mini">全选</el-checkbox>
           </el-button>
@@ -87,6 +87,13 @@
         </div>
       </div>
     </div>
+    <Modal v-model="batchReplace.modalVisible" title="批量修改" @on-ok="confirmBatchReplaceColumn">
+      <p>选择要修改的列</p>
+      <CheckboxGroup v-model="batchReplace.selectedColumns">
+        <Checkbox v-for="item in colHeaders.filter((item,i)=>i)" :label="item" :key="item"></Checkbox>
+      </CheckboxGroup>
+      <Input v-model="batchReplace.repalceValue" placeholder="请输入要替换的值"/>
+    </Modal>
   </div>
 </template>
 
@@ -108,10 +115,12 @@ import {
   getSpotIndicators,
   uploadExcelData,
   getUpdateGetExcelListPer,
-  getExcelList
+  getExcelList,
+  publishExcelData
 } from "@/apis";
+import { productTypesValue } from "@/constants";
 import { send } from "@/apis/ws";
-const disabledColumns = ["参考价", "报价"];
+const disabledColumns = ["参考价", "报价", "毛重报价", "公重报价"];
 export default {
   name: "cloud-offer-tool",
   data() {
@@ -136,6 +145,11 @@ export default {
           //   columns:[]
           // }
         ]
+      },
+      batchReplace: {
+        modalVisible: false,
+        selectedColumns: [],
+        repalceValue: ""
       },
       isHighlight: false
     };
@@ -176,15 +190,15 @@ export default {
       });
       this.params = params;
     },
-    getOfferLayout(v) {
+    getOfferLayout(v, reload = false) {
       const { id } = this.data.user.data;
-      const { type, tabList, layouts ={}} = this;
-      const key = `offer_${ v || type}`;
+      const { type, tabList, layouts = {} } = this;
+      const key = `offer_${v || type}`;
       const { status } = layouts[key];
-      if (status !== "success" && status !== "loading") {
+      if ((status !== "success" && status !== "loading") || reload) {
         this.asyncActionWrapper({
           call: getOfferLayout,
-          params: { 棉花云报价类型: tabList.indexOf(type) + 1, 用户ID: id },
+          params: { 棉花云报价类型: productTypesValue[type], 用户ID: id },
           type: "layout",
           key
         });
@@ -231,11 +245,16 @@ export default {
       }
       this.params[type] = { ...nextParams, [key]: value };
     },
-
+    getFullParams() {
+      const { data } = this.layout;
+      const { params } = this.$refs.layout;
+      const fullParams = Object.assign(this.getPreValue(data), params);
+      return fullParams;
+    },
     nextStep() {
       const { status, data } = this.layout;
       if (status === "success") {
-        if (this.type !== "新疆棉") {
+        if (!["新疆棉",'拍储'].includes(this.type)) {
           return this.uploadExcelData();
         }
         const { id } = this.data.user.data;
@@ -283,7 +302,7 @@ export default {
       const { data } = this.layout;
       const { id } = this.data.user.data;
       const { params } = this.$refs.layout;
-      
+
       this.setExcelStatus({
         status: "upload",
         msg: "上传excel数据中"
@@ -292,7 +311,7 @@ export default {
         //加工批号: "62044171101" || params["批号"],
         用户ID: id,
         ...data.carry,
-        ...Object.assign(this.getPreValue(data),params)
+        ...Object.assign(this.getPreValue(data), params)
       })
         .then(() => {
           this.setExcelStatus({
@@ -419,24 +438,67 @@ export default {
         data: fullTableData,
         columns
       };
+      //const maozhongI = fullColHeaders.indexOf("毛重");
+      // fullTableData.map(row => {
+      //   row[maozhongI] = row[maozhongI] / 1000;
+      // });
       this.excel.hotTableConfigs[i] = hotTableConfig;
       this.updateHotData(hotTableConfig);
     },
     prevStep() {
+      this.getOfferLayout(this.type, true);
+      //清楚excel缓存数据
       this.excel = {
-        status: "init"
+        status: "init", //upload  getProgress getData complete error
+        msg: "",
+        progress: 0,
+        tabList: [],
+        activeTab: "",
+        hotTableConfigs: [
+          // {
+          //   columns:[]
+          // }
+        ]
       };
+      const hot = this.$refs.hotTable;
+      hot.hotInstance.updateSettings({
+        data: [],
+        colHeaders: [],
+        columns: []
+      });
     },
     submit() {
-      const { data } = this.layout;
-      const params = this.params[this.type];
-      doSubmit(
-        data.do,
-        Object.assign(this.getPreValue(data), params, data.carry)
-      ).then(res => {
-        Message.success("发布成功");
-        this.getMyCloudOfferList();
+      const { data, hotTableConfigs } = this.excel;
+      const nextExcelData = _.cloneDeep(data);
+      nextExcelData.forEach((d, i) => {
+        if (hotTableConfigs[i]) {
+          const [header] = d.data;
+          const newBody = _.cloneDeep([...hotTableConfigs[i].tableData]);
+          newBody.map(item => {
+            item.shift();
+            return item;
+          });
+
+          nextExcelData[i].data = [header, ...newBody];
+        }
       });
+      publishExcelData({
+        data: JSON.stringify(nextExcelData)
+      })
+        .then(res => {
+          Message.success("发布成功");
+          this.excel.status = "init";
+        })
+        .catch(e => {
+          Message.error("发布失败");
+        });
+      // doSubmit(
+      //   data.do,
+      //   Object.assign(this.getPreValue(data), params, data.carry)
+      // ).then(res => {
+      //   Message.success("发布成功");
+      //   this.getMyCloudOfferList();
+      // });
     },
     hadnleCheckedListChange(v) {
       this.checkedList = v;
@@ -480,65 +542,79 @@ export default {
       });
       return i;
     },
+    isNumber(n) {
+      return typeof n === "number" && !isNaN(n);
+    },
     afterChange(v, type) {
       if (type === "edit") {
-        const { colHeaders, tableData } = this;
+        const fullParams = this.getFullParams();
+        const { colHeaders, tableData, isNumber } = this;
         const [rowI, colI] = v[0];
         const nextV = _.cloneDeep(tableData);
-        const expressionList = [
-          "基差升贴水+参考价=报价",
-          "公重重量/公重报价*毛重=毛重报价",
-          "毛重重量/毛重报价*公重=公重报价"
-        ];
-        expressionList.forEach(expression => {
+        if (fullParams["报价类型"] === "一口价") {
+          let expression =
+            fullParams["重量类型"] === "公重"
+              ? "公重/公重报价*毛重=毛重报价"
+              : "毛重/毛重报价*公重=公重报价";
+          const [e, D] = expression.split("=");
+          const [
+            all,
+            A,
+            B,
+            C
+          ] = /([\u4e00-\u9fa5]+)\/([\u4e00-\u9fa5]+)\*([\u4e00-\u9fa5]+)/gm.exec(
+            e
+          );
+          const AI = colHeaders.indexOf(A);
+          const BI = colHeaders.indexOf(B);
+          const CI = colHeaders.indexOf(C);
+          const DI = colHeaders.indexOf(D);
+          if (
+            isNumber(AI) &&
+            isNumber(BI) &&
+            isNumber(CI) &&
+            [AI, BI, CI].includes(colI)
+          ) {
+            const row = nextV[rowI];
+            const aValue = Number(row[AI]);
+            const bValue = Number(row[BI]);
+            const cValue = Number(row[CI]);
+            if (
+              this.isNumber(aValue) &&
+              this.isNumber(bValue) &&
+              this.isNumber(cValue)
+            ) {
+              if (A === "毛重") {
+                row[DI] = (aValue / bValue) * cValue;
+              } else {
+                row[DI] = (aValue / bValue) * cValue;
+              }
+            } else {
+              row[DI] = "--";
+            }
+            // console.log(tableData[rowI],row, " row");
+          }
+        }
+        if (fullParams["报价类型"] === "基差") {
+          const expression = "基差值+基差升贴水=参考价";
           const [e, D] = expression.split("=");
           if (e.includes("+")) {
             const [A, B] = e.split("+");
             const AI = colHeaders.indexOf(A);
             const BI = colHeaders.indexOf(B);
             const DI = colHeaders.indexOf(D);
-            if ([AI, BI, DI].includes(colI)) {
+            if ([AI, BI].includes(colI)) {
               const row = nextV[rowI];
               const aValue = Number(row[AI]);
               const bValue = Number(row[BI]);
-              if (typeof aValue === "number" && typeof bValue === "number") {
+              if (this.isNumber(aValue) && this.isNumber(bValue)) {
                 row[DI] = aValue + bValue;
               } else {
                 row[DI] = "--";
               }
-              // console.log(tableData[rowI],row, " row");
-            }
-          } else {
-            const [
-              all,
-              A,
-              B,
-              C
-            ] = /([\u4e00-\u9fa5]+)\/([\u4e00-\u9fa5]+)\*([\u4e00-\u9fa5]+)/gm.exec(
-              e
-            );
-            const AI = colHeaders.indexOf(A);
-            const BI = colHeaders.indexOf(B);
-            const CI = colHeaders.indexOf(C);
-            const DI = colHeaders.indexOf(D);
-            if ([AI, BI, CI, DI].includes(colI)) {
-              const row = nextV[rowI];
-              const aValue = Number(row[AI]);
-              const bValue = Number(row[BI]);
-              const cValue = Number(row[CI]);
-              if (
-                typeof aValue === "number" &&
-                typeof bValue === "number" &&
-                typeof cValue === "number"
-              ) {
-                row[DI] = (aValue / bValue) * cValue;
-              } else {
-                row[DI] = "--";
-              }
-              // console.log(tableData[rowI],row, " row");
             }
           }
-        });
+        }
         this.updateHotData({ data: nextV });
       }
     },
@@ -559,7 +635,28 @@ export default {
     handleExcelTabClick(e) {
       this.initExcelData();
     },
-
+    batchReplaceColumn() {
+      this.batchReplace = {
+        modalVisible: true,
+        selectedColumns: [],
+        repalceValue: ""
+      };
+    },
+    confirmBatchReplaceColumn() {
+      const { colHeaders, batchReplace } = this;
+      const { repalceValue, selectedColumns } = batchReplace;
+      const hot = this.$refs.hotTable;
+      const nextData = this.tableData;
+      nextData.map(row => {
+        selectedColumns.forEach(selectedColumn => {
+          row[colHeaders.indexOf(selectedColumn)] = repalceValue;
+        });
+         return row;
+      });
+      this.updateHotData({
+        data: nextData
+      });
+    },
     replaceStore() {
       this.$prompt("请输入仓库地址", "", {
         confirmButtonText: "确定",
@@ -588,6 +685,18 @@ export default {
           //   message: '取消输入'
           // });
         });
+    },
+    deleteRows() {
+      const { checkedList, colHeaders } = this;
+      const hot = this.$refs.hotTable;
+      const nextData = this.tableData.filter((row, i) => {
+        const [checked] = row;
+        return !checked;
+      });
+      this.updateHotData({
+        data: nextData
+      });
+      this.isAllHotTableChecked = false;
     },
     download() {
       const hot = this.$refs.hotTable;
