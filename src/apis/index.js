@@ -90,12 +90,13 @@ export function deleteMyCloudOffer(params) {
 
 //获取excel数据
 export function uploadExcelData(params) {
-    return get('PCUpdateGetExcel', params);
+    delete params['升贴水'];
+    return get('PCUpdateGetExcel', { ...params, t: 'taiaiqiang' });
 }
 
 //认证企业信息 
 export function authInfo(params) {
-    return get('ruzhu',params);
+    return get('ruzhu', params);
 }
 //获取认证信息
 export function getAuthInfo(params) {
@@ -116,6 +117,18 @@ export function getExcelList(params) {
 //发布编辑后的excel数据
 export function publishExcelData(params) {
     return get('CloudQuotePC', params);
+}
+//获取客服列表
+export function getKFList(params) {
+    return get('KFList', params);
+}
+//添加客服
+export function addKF(params) {
+    return get('KFAdd', params);
+}
+//删除客服 KFDelete
+export function deleteKF(params) {
+    return get('KFDelete', params);
 }
 export {
     login

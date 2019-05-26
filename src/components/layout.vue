@@ -14,14 +14,22 @@
             <p class="field-label" v-if="field.title">{{field.title}}</p>
             <div class="field-content">
               <template v-for="(component,componentI) in field.components">
-                <input
-                  class="input"
-                  v-if="isShowField(component.visible) && component.type === 'input'"
+                <textarea
+                  class="areatext"
+                  v-if="isShowField(component.visible) && component.type === 'input' && component.param.includes('批号')"
                   :key="component.content || componentI"
                   :value="value[component.param]"
                   @input="e=>handleChange(component.param,e.target.value)"
                   :placeholder="component.content"
-                >
+                />
+                <input
+                  class="input"
+                  v-if="isShowField(component.visible) && component.type === 'input' && !component.param.includes('批号')"
+                  :key="component.content || componentI"
+                  :value="value[component.param]"
+                  @input="e=>handleChange(component.param,e.target.value)"
+                  :placeholder="component.content"
+                />
                 <Select
                   size="small"
                   v-if="isShowField(component.visible) && component.type === 'select'"
@@ -49,7 +57,7 @@
                 <LayoutDatePicker
                   v-if="isShowField(component.visible) && component.type === 'datepicker'"
                   :key="component.label || componentI"
-                 :data="component"
+                  :data="component"
                   :value="value[component.param]"
                   @onChange="handleChange(component.param,$event)"
                 />
@@ -77,10 +85,11 @@
                   :data="updataParams"
                   class="upload-box"
                   :action="component.url"
-                  :multiple="false"
+                  :multiple="true"
+                  :show-file-list="false"
                   :before-upload="beforeUpload"
                   :on-error="onUploadError"
-                  :on-success="onUploadSuccess"
+                  :on-success="(res)=>onUploadSuccess(component.param,res)"
                 >
                   <el-button size="small" type="text">点击上传</el-button>
                 </el-upload>
@@ -102,7 +111,7 @@
 import { getOfferList } from "@/apis";
 import { commonParmas } from "@/apis/base.js";
 import LayoutSlide from "./layout-slide";
-import LayoutDatePicker from './layout-datepicker';
+import LayoutDatePicker from "./layout-datepicker";
 export default {
   props: ["data", "params", "onChange"],
   data() {
@@ -135,10 +144,18 @@ export default {
   },
   methods: {
     handleChange(key, value) {
-      this.onChange({
-        key,
-        value
-      });
+      if (key.includes("批号")) {
+        const reg = /[^\d\.]/g;
+        this.onChange({
+          key,
+          value: value.replace(reg, ",")
+        });
+      } else {
+        this.onChange({
+          key,
+          value
+        });
+      }
     },
     isShowField(visible, d) {
       const { value: params } = this;
@@ -181,13 +198,28 @@ export default {
     onUploadError(...v) {
       this.$message.error("上传失败");
     },
-    onUploadSuccess(res) {
-      const { code, data, message } = res;
-      for (const key in data) {
-        this.handleChange(key, data[key]);
+    onUploadSuccess(key, res) {
+      const { code, message, data } = res;
+      if (code === 1) {
+        if (data["上传结果"]["错误批号"]) {
+          this.$message.error(data["上传结果"]["错误批号"]);
+        }
+        let prev = this.value[key] ? this.value[key].split(",") : [];
+        prev.push(data["上传结果"]["仓单批号"]);
+        const next = prev.filter(i => i);
+        this.handleChange(key, next.join(","));
+        this.$message.success(
+          `本次上传成功个数${data["上传结果"]["可用个数"]},总计${next.length}个`
+        );
+      } else {
+        this.$message.error(message);
       }
 
-      this.$message.success("上传成功");
+      // for (const key in data) {
+      //
+      // }
+
+      //this.$message.success("上传成功");
     }
   },
   components: {
@@ -263,6 +295,15 @@ export default {
     flex: 1;
     height: 100%;
     border: none;
+    outline: none;
+  }
+  .areatext {
+    margin: 8px 0;
+    padding: 5px;
+    flex: 1;
+    height: 80px;
+    border: 1px solid #979797;
+    border-radius: 4px;
     outline: none;
   }
   .text {

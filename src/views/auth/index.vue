@@ -1,9 +1,7 @@
 <template>
   <div class="auth-container">
     <div class="auth-status-box" v-if="!hasClickAuthBtn">
-      <div class="auth-status-header">
-       认证状态
-      </div>
+      <div class="auth-status-header">认证状态</div>
       <div class="auth-status-value">
         <p
           :class="{'authStatusClassName':true,'has-auth':isAuth,'auth':hasClickAuthBtn,'no-auth':false}"
@@ -23,13 +21,15 @@
         :data="value"
       />
       <Card
-        :onChange="handleChange"
+        :onChange="handleKfInfoChange"
         :onRequestAddKf="handleAddKf"
         :option="kfInfoList"
+        :kfList="kfList"
         title="客服信息"
         type="kf"
         :state="auth.state"
-        :data="value"
+        :requestDeleteKf="deleteKf"
+        :data="newAddKfInfo"
       />
       <Card
         :onChange="handleChange"
@@ -48,15 +48,17 @@
 </template>
 <script>
 import { mapActions, mapState } from "vuex";
-import { authInfo, getAuthInfo } from "@/apis";
+import { authInfo, getAuthInfo, getKFList, addKF, deleteKF } from "@/apis";
 import { authStatusMap } from "@/constants";
 import { Message } from "element-ui";
 import Card from "./card";
 const kfInfoGroup = [
   {
+    key: "客服名称",
     label: "客服名称"
   },
   {
+    key: "客服电话",
     label: "客服电话"
   }
 ];
@@ -77,6 +79,7 @@ export default {
       isAuth: false,
       hasClickAuthBtn: false,
       authStatusMap,
+      newAddKfInfo: {},
       params: {},
 
       topList: [
@@ -111,7 +114,7 @@ export default {
           key: "address"
         }
       ],
-      kfInfoList: [...kfInfoGroup],
+      kfInfoList: kfInfoGroup,
       imgList,
       rules: {
         phone: [{ required: true, message: "手机号不能为空", trigger: "blur" }]
@@ -120,6 +123,7 @@ export default {
   },
   created() {
     this.getAuthInfo();
+    this.getKFList();
   },
   computed: {
     ...mapState({
@@ -136,6 +140,24 @@ export default {
       const { data } = this.data.auth;
       return data ? { ...data, state: +data.state } : { status: NaN };
     },
+    kfList() {
+      const { status, data } = this.data.kfList;
+      if (status === "success") {
+        const { key, list } = data;
+        const result = [];
+        list.forEach(item => {
+          result.push({
+            客服名称: item[key["客服名称"]],
+            客服电话: item[key["客服电话"]],
+            id: item[key["主键"]]
+          });
+        });
+        console.log(result, "result");
+        return result;
+      } else {
+        return [];
+      }
+    },
     value() {
       const { auth, params } = this;
       return auth.state === 2 ? auth : params;
@@ -146,12 +168,23 @@ export default {
     handleChange({ key, value }) {
       this.params[key] = value;
     },
+    handleKfInfoChange({ key, value }) {
+      this.newAddKfInfo[key] = value;
+    },
     startAuth() {
       this.hasClickAuthBtn = true;
     },
     handleAddKf() {
-      const next = [...this.kfInfoList];
-      this.kfInfoList = next.concat(kfInfoGroup);
+      // const next = [...this.kfInfoList];
+      // this.kfInfoList = next.concat(kfInfoGroup);
+      const { id } = this.data.user.data;
+      addKF({
+        '用户ID': id,
+        ...this.newAddKfInfo
+      }).then(res => {
+        Message.success("添加成功");
+        this.getKFList();
+      });
     },
     submit() {
       authInfo({ ...this.params, user_id: this.data.user.data.id }).then(
@@ -171,6 +204,24 @@ export default {
         key: "auth"
       });
       this.hasClickAuthBtn = false;
+    },
+    getKFList() {
+      const { id } = this.data.user.data;
+      this.asyncActionWrapper({
+        call: getKFList,
+        params: { 用户ID: id },
+        type: "data",
+        key: "kfList"
+      });
+    },
+    deleteKf(i) {
+      const { id } = this.data.user.data;
+      deleteKF({
+        '用户ID': id,
+        "客服列表的主键": i
+      }).then(res => {
+        this.getKFList();
+      });
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
@@ -226,7 +277,6 @@ $main: #44bdf7;
   color: $main;
 }
 
-
 .auth-status-value {
   height: 40px;
   display: flex;
@@ -246,7 +296,7 @@ $main: #44bdf7;
   color: #ccc;
 }
 .btn {
-  margin:  0 auto;
+  margin: 0 auto;
   width: 100px;
   height: 40px;
   display: flex;
@@ -258,5 +308,4 @@ $main: #44bdf7;
   color: #fff;
   cursor: pointer;
 }
-
 </style>

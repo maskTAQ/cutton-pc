@@ -7,14 +7,14 @@
       <el-card class="box-card">
         <div class="title">
           <div class="left">
-            <i class="pihao">批号{{g('批号')}}</i>
+            <i class="pihao">{{pihaoKey}}{{g(pihaoKey)}}</i>
             <i class="type">{{g('类型')}}</i>
           </div>
           <div class="right">编号{{g('编号')}} {{g('发布时间')}}</div>
         </div>
         <div class="center">
           <div class="center-left">
-            <div class="item" v-for="item in list" :key="item.label">
+            <div class="item" v-for="item in filtersList" :key="item.label">
               <p class="item-label">{{item.label}}</p>
               <p class="item-value">{{g(item.key)}}</p>
             </div>
@@ -34,13 +34,18 @@
         <div class="bottom">
           <div class="bottom-left">
             <div class="bottom-text-box">
-              <p class="bottom-text">仓库:{{g('交货仓库或方式')}}</p>
+              <p class="bottom-text">{{ckKey}}:{{g('交货仓库或方式')}}</p>
             </div>
-            <div class="bottom-text-box">
-              <p class="bottom-text">{{g('基差类型')}}</p>
+            <div class="offer-left" v-if="g('报价类型')==='一口价'">
+              <div class="tkj-text">一口价</div>
             </div>
-            <div class="bottom-text-box">
-              <p class="bottom-text">基 差:(+{{g('基差值')}})</p>
+            <div class="offer-left">
+              <div class="bottom-text-box">
+                <p class="bottom-text">{{g('基差类型')}}</p>
+              </div>
+              <div class="bottom-text-box">
+                <p class="bottom-text">基 差:(+{{g('基差值')}})</p>
+              </div>
             </div>
           </div>
           <div class="bottom-right">
@@ -71,32 +76,35 @@
 <script>
 import update from "immutability-helper";
 import carIcon from "@/assets/car.png";
+import { productTypesLabel } from "../../constants/index.js";
 export default {
   props: ["data", "map", "checkedList", "onChange"],
   name: "card-item",
   data() {
     return {
       carIcon,
-
       list: [
+        { label: "年度", key: "年份", includes: ["进口棉￥", "进口棉$"] },
+        { label: "产地", key: "产地", includes: ["进口棉￥", "进口棉$"] },
         { label: "等级", key: "颜色级" },
         { label: "长度", key: "长度" },
         { label: "强力", key: "强力" },
-        {
-          label: "马值",
-          key: "马克隆值"
-        },
+        { label: "马值", key: "马克隆值" },
+        { label: "叶屑", key: "叶屑", includes: ["进口棉￥", "进口棉$"] },
         {
           label: "含杂",
-          key: "平均含杂"
+          key: "平均含杂",
+          noInclude: ["地产棉", "进口棉￥", "进口棉$"]
         },
         {
           label: "回潮",
-          key: "回潮"
+          key: "回潮",
+          noInclude: ["地产棉", "进口棉￥", "进口棉$"]
         },
         {
           label: "长整",
-          key: "整齐度"
+          key: "整齐度",
+          noInclude: ["地产棉", "进口棉￥", "进口棉$"]
         }
       ],
       descList: [
@@ -115,6 +123,32 @@ export default {
     checked() {
       const { checkedList, g, onChange } = this;
       return checkedList.includes(g("主键"));
+    },
+    filtersList() {
+      const type = productTypesLabel[this.g("棉花云报价类型")];
+      return this.list.filter(({ noInclude = [], includes = "all" }) => {
+        if (includes === "all") {
+          return !noInclude.includes(type);
+        } else {
+          return !noInclude.includes(type) && includes.includes(type);
+        }
+      });
+    },
+    ckKey() {
+      const type = productTypesLabel[this.g("棉花云报价类型")];
+      let key = "仓库";
+      if (["地产棉", "进口棉￥"].includes(type)) {
+        key = "目的港";
+      }
+      return key;
+    },
+    pihaoKey() {
+      const type = productTypesLabel[this.g("棉花云报价类型")];
+      let key = "批号";
+      if (["地产棉", "进口棉￥"].includes(type)) {
+        key = "提单号";
+      }
+      return key;
     }
   },
   methods: {
@@ -327,6 +361,73 @@ $main: #44bdf7;
 
 .btn-text {
   font-size: 12px;
+  color: #000;
+}
+
+//一口价部分
+.offer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.offer-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.offer-left-top {
+  flex: 1;
+}
+.jc-label {
+  margin-right: 10px;
+  font-size: 32px;
+  color: $main;
+}
+.jc-value {
+  font-size: 28px;
+  color: #b4b4b4;
+}
+.offer-left-bottom {
+  flex: 1;
+}
+.ykj-text {
+  font-size: 32px;
+  font-weight: bold;
+  color: $main;
+}
+.offer-right-top {
+  flex: 1;
+}
+.offer-right-bottom {
+  flex: 1;
+}
+.offer-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.offer-right-top {
+  flex: 1;
+}
+.offer-right-bottom {
+  flex: 1;
+}
+.price-value {
+  font-size: 32px;
+  color: $main;
+}
+.price-label {
+  font-size: 28px;
+  color: #b4b4b4;
+}
+.weight-label {
+  font-size: 30px;
+  color: #b4b4b4;
+}
+.weight-value {
+  font-size: 28px;
   color: #000;
 }
 </style>

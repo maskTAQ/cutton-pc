@@ -18,9 +18,18 @@ const productTypesValue = {
     '地产棉':4,
     '拍储':5
 };
+const productTypesLabel = {
+    0: '全部',
+    1: '新疆棉',
+    2: '进口棉$',
+    3: '进口棉￥',
+    4: '地产棉',
+    5: '拍储'
+};
 export {
     store,
     productTypes,
     authStatusMap,
-    productTypesValue
+    productTypesValue,
+    productTypesLabel
 }

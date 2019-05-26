@@ -46,6 +46,7 @@ export default new Vuex.Store({
     },
     login(state, action) {
       const { payload } = action;
+      console.log(JSON.stringify(payload),'JSON.stringify(payload)')
       localStorage.setItem('user', JSON.stringify(payload));
       state.data.user = {
         status: 'success',

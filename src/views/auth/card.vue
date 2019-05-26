@@ -1,6 +1,12 @@
 <template>
-  <div class="card-container">
+  <ul class="card-container">
     <div class="title">{{title}}</div>
+    <ul class="kf-list" v-if="type === 'kf'">
+      <li v-for="item in kfList" :key="item.id" class="kf-item">
+        <p>客服名称：{{item['客服名称']}} 客服电话：{{item['客服电话']}}</p>
+        <img :src="closeIcon" class="close" @click="requestDeleteKf(item.id)" alt>
+      </li>
+    </ul>
     <div :class="{'input-content':hasInput,'img-content':isImg}">
       <div
         v-for="item in option"
@@ -46,40 +52,44 @@
       </div>
       <button v-if="showAddKf" class="add-kf-btn" @click="onRequestAddKf">添加客服</button>
     </div>
-  </div>
+  </ul>
 </template>
 <script>
 import Axios from "axios";
+import closeIcon from "./close.png";
 export default {
   props: [
     "option",
+    "kfList",
     "title",
     "type",
     "onRequestAddKf",
     "data",
     "state",
-    "onChange"
+    "onChange",
+    "requestDeleteKf"
   ],
   name: "card",
+  data() {
+    return {
+      closeIcon
+    };
+  },
   computed: {
     hasInput() {
       return ["input", "kf"].includes(this.type);
     },
     canInput() {
-      const { hasInput, state } = this;
-      return [0, 3].includes(state);
+      const { hasInput, state, type } = this;
+      return type === "kf" || [0, 3].includes(state);
     },
     showText() {
       const { hasInput, state } = this;
       return hasInput && state === 2;
     },
     showAddKf() {
-      const {
-        type,
-        hasInput,
-        data: { state }
-      } = this;
-      return type === "kf" && [0, 3].includes(state);
+      const { type } = this;
+      return type === "kf";
     },
     isImg() {
       return this.type === "img";
@@ -144,7 +154,7 @@ $main: #44bdf7;
 .img-item {
   margin: 10px 0;
   flex: 1;
-  img{
+  img {
     width: 100%;
   }
 }
@@ -168,7 +178,25 @@ $main: #44bdf7;
   flex: 1;
   display: flex;
 }
-
+.kf-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  line-height: 30px;
+  font-size: 13px;
+  color: #000;
+  position: relative;
+  p {
+    width: 200px;
+  }
+  .close {
+    /* position: absolute;
+    top: -10px;
+    right: -10px; */
+    width: 20px;
+    cursor: pointer;
+  }
+}
 .input-box {
   flex: 1;
   height: 100%;

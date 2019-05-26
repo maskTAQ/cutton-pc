@@ -8,7 +8,7 @@ let serverStatus = {
     connected: false,
     msg: '初始化'
 };
-var client = new MQTT.Client("skybcc.com", 8083, pcClientId);//建立客户端实例  
+var client = new MQTT.Client("s.chncot.com", 8083, pcClientId);//建立客户端实例  
 
 function connect() {
     serverStatus = {

@@ -120,7 +120,7 @@ import {
 } from "@/apis";
 import { productTypesValue } from "@/constants";
 import { send } from "@/apis/ws";
-const disabledColumns = ["参考价", "报价", "毛重报价", "公重报价"];
+const disabledColumns = ["毛重报价", "公重报价"]; //"参考价", "报价", "毛重报价", "公重报价"
 export default {
   name: "cloud-offer-tool",
   data() {
@@ -155,12 +155,7 @@ export default {
     };
   },
   created() {
-    //获取我的云报价
-    this.getMyCloudOfferList();
-    //获取报价布局
-    this.getOfferLayout();
-    //获取报价参数
-    this.initParams();
+    this.init();
   },
   computed: {
     ...mapState({
@@ -181,8 +176,19 @@ export default {
       return window.innerHeight - 226 + "px";
     }
   },
+  beforeDestroy() {
+    clearTimeout(this.timeout);
+  },
   methods: {
     ...mapActions(["asyncActionWrapper"]),
+    init() {
+      //获取我的云报价
+      this.getMyCloudOfferList();
+      //获取报价布局
+      this.getOfferLayout();
+      //获取报价参数
+      this.initParams();
+    },
     initParams() {
       const params = {};
       this.tabList.forEach(tab => {
@@ -190,12 +196,12 @@ export default {
       });
       this.params = params;
     },
-    getOfferLayout(v, reload = false) {
+    getOfferLayout(v) {
       const { id } = this.data.user.data;
       const { type, tabList, layouts = {} } = this;
       const key = `offer_${v || type}`;
       const { status } = layouts[key];
-      if ((status !== "success" && status !== "loading") || reload) {
+      if (status !== "loading") {
         this.asyncActionWrapper({
           call: getOfferLayout,
           params: { 棉花云报价类型: productTypesValue[type], 用户ID: id },
@@ -247,14 +253,15 @@ export default {
     },
     getFullParams() {
       const { data } = this.layout;
-      const { params } = this.$refs.layout;
+      const params = this.params[this.type];
       const fullParams = Object.assign(this.getPreValue(data), params);
       return fullParams;
     },
     nextStep() {
       const { status, data } = this.layout;
+      
       if (status === "success") {
-        if (!["新疆棉",'拍储'].includes(this.type)) {
+        if (!["新疆棉", "拍储",'地产棉'].includes(this.type)) {
           return this.uploadExcelData();
         }
         const { id } = this.data.user.data;
@@ -275,14 +282,6 @@ export default {
             break;
           }
         }
-        // this.setExcelStatus({
-        //   status: "complete",
-        //   msg: "准备渲染excel"
-        //   // data: res,
-        //   // tabList,
-        //   // activeTab: tabList[0]
-        // });
-
         send({
           action,
           data: { number: number, userId: id, url, carry: data.carry }
@@ -301,8 +300,6 @@ export default {
     uploadExcelData() {
       const { data } = this.layout;
       const { id } = this.data.user.data;
-      const { params } = this.$refs.layout;
-
       this.setExcelStatus({
         status: "upload",
         msg: "上传excel数据中"
@@ -311,7 +308,7 @@ export default {
         //加工批号: "62044171101" || params["批号"],
         用户ID: id,
         ...data.carry,
-        ...Object.assign(this.getPreValue(data), params)
+        ...this.getFullParams()
       })
         .then(() => {
           this.setExcelStatus({
@@ -364,7 +361,6 @@ export default {
     getExeclData() {
       const { data } = this.layout;
       const { id } = this.data.user.data;
-      const { params } = this.$refs.layout;
       this.setExcelStatus({
         status: "getData",
         msg: "获取excellist"
@@ -372,7 +368,6 @@ export default {
       getExcelList({ ...data.carry, excel: true })
         .then(res => {
           const tabList = res.map(item => item.title);
-
           this.setExcelStatus({
             status: "complete",
             msg: "准备渲染excel",
@@ -446,26 +441,45 @@ export default {
       this.updateHotData(hotTableConfig);
     },
     prevStep() {
-      this.getOfferLayout(this.type, true);
-      //清楚excel缓存数据
-      this.excel = {
-        status: "init", //upload  getProgress getData complete error
-        msg: "",
-        progress: 0,
-        tabList: [],
-        activeTab: "",
-        hotTableConfigs: [
-          // {
-          //   columns:[]
-          // }
-        ]
-      };
+      this.cleanCache();
+    },
+    cleanCache() {
+      Object.assign(this, {
+        type: "新疆棉",
+        isAllChecked: false,
+        isAllHotTableChecked: false,
+        checkedList: [],
+        colHeaders: [],
+        columns: [],
+        tableData: [],
+        params: {},
+        loading: false,
+        excel: {
+          status: "init", //upload  getProgress getData complete error
+          msg: "",
+          progress: 0,
+          tabList: [],
+          activeTab: "",
+          hotTableConfigs: [
+            // {
+            //   columns:[]
+            // }
+          ]
+        },
+        batchReplace: {
+          modalVisible: false,
+          selectedColumns: [],
+          repalceValue: ""
+        },
+        isHighlight: false
+      });
       const hot = this.$refs.hotTable;
       hot.hotInstance.updateSettings({
         data: [],
         colHeaders: [],
         columns: []
       });
+      this.init();
     },
     submit() {
       const { data, hotTableConfigs } = this.excel;
@@ -487,7 +501,7 @@ export default {
       })
         .then(res => {
           Message.success("发布成功");
-          this.excel.status = "init";
+          this.cleanCache();
         })
         .catch(e => {
           Message.error("发布失败");
@@ -651,7 +665,7 @@ export default {
         selectedColumns.forEach(selectedColumn => {
           row[colHeaders.indexOf(selectedColumn)] = repalceValue;
         });
-         return row;
+        return row;
       });
       this.updateHotData({
         data: nextData
