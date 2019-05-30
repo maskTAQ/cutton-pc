@@ -29,7 +29,7 @@
                   :value="value[component.param]"
                   @input="e=>handleChange(component.param,e.target.value)"
                   :placeholder="component.content"
-                />
+                >
                 <Select
                   size="small"
                   v-if="isShowField(component.visible) && component.type === 'select'"
@@ -78,12 +78,14 @@
                   <Checkbox v-for="item in component.content" :label="item" :key="item"></Checkbox>
                 </CheckboxGroup>
 
-                <el-upload
+                <UploadFile
+                  type="file"
                   v-if="isShowField(component.visible) && component.type === 'input-file'"
                   :key="component.label || componentI"
+                   :value="value[component.param]"
                   :name="component.param"
+                  :handleChange="handleChange"
                   :data="updataParams"
-                  class="upload-box"
                   :action="component.url"
                   :multiple="true"
                   :show-file-list="false"
@@ -92,7 +94,7 @@
                   :on-success="(res)=>onUploadSuccess(component.param,res)"
                 >
                   <el-button size="small" type="text">点击上传</el-button>
-                </el-upload>
+                </UploadFile>
                 <p
                   v-if="isShowField(component.visible) && component.type === 'text'"
                   :key="component.label || componentI"
@@ -108,10 +110,12 @@
   </div>
 </template>
 <script>
+
 import { getOfferList } from "@/apis";
 import { commonParmas } from "@/apis/base.js";
 import LayoutSlide from "./layout-slide";
 import LayoutDatePicker from "./layout-datepicker";
+import UploadFile from "@/components/upload-file";
 export default {
   props: ["data", "params", "onChange"],
   data() {
@@ -224,7 +228,8 @@ export default {
   },
   components: {
     LayoutSlide,
-    LayoutDatePicker
+    LayoutDatePicker,
+    UploadFile
   }
 };
 </script>

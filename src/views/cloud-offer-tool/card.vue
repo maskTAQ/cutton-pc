@@ -7,10 +7,10 @@
       <el-card class="box-card">
         <div class="title">
           <div class="left">
-            <i class="pihao">{{pihaoKey}}{{g(pihaoKey)}}</i>
-            <i class="type">{{g('类型')}}</i>
+            <p class="pihao">{{pihaoKey}}{{g(pihaoKey)}}</p>
+            <p class="type">{{g('类型')}}</p>
           </div>
-          <div class="right">编号{{g('编号')}} {{g('发布时间')}}</div>
+          <div class="right" v-if="false">编号{{g('编号')}} {{g('发布时间')}}</div>
         </div>
         <div class="center">
           <div class="center-left">
@@ -199,11 +199,13 @@ $main: #44bdf7;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
     i {
       font-style: normal;
       color: #000;
     }
     .pihao {
+      margin-right: 6px;
       font-size: 16px;
       color: $main;
     }
@@ -211,6 +213,7 @@ $main: #44bdf7;
 }
 
 .center {
+  margin-bottom: 6px;
   display: flex;
   flex-direction: row;
   .center-left {
@@ -272,7 +275,7 @@ $main: #44bdf7;
   display: flex;
   flex-direction: row;
   .label {
-    font-size: 15px;
+    font-size: 12px;
     color: #000;
   }
   .value {
@@ -286,9 +289,8 @@ $main: #44bdf7;
   flex-direction: row;
 }
 
-.bottom-left,
-.bottom-right {
-  flex: 1;
+.bottom-left{
+  flex:1;
 }
 
 .bottom-text-box {
@@ -300,7 +302,7 @@ $main: #44bdf7;
 }
 
 .bottom-text {
-  font-size: 15px;
+  font-size: 12px;
   color: #000;
 }
 
@@ -317,6 +319,7 @@ $main: #44bdf7;
 }
 
 .bottom-right-bottom-left {
+  margin-right: 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

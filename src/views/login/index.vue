@@ -5,8 +5,7 @@
         <img :src="bgIcon" alt="bg" class="bg">
         <div class="qr">
           <img :src="markIcon" alt class="mark">
-          <qrcode :value="JSON.stringify({clientId,type:'cotton'})" :options="{ width: 300 }"/>
-          <p>请使用小程序扫码登录</p>
+          <img :src="qrSrc" alt="" class="qr-img">
         </div>
       </div>
     </div>
@@ -15,6 +14,7 @@
 </template>
 
 <script>
+import Axios from 'axios';
 import { clientId, Publisher } from "@/utils";
 import { mapMutations } from "vuex";
 import { Message } from "element-ui";
@@ -35,8 +35,13 @@ export default {
   },
   mounted() {
     //   this.renderQr();
-    window.onload = this.renderQr;
+    //window.onload = this.renderQr;
     Publisher.on("login", this.handleLogin);
+  },
+  computed:{
+    qrSrc(){
+      return 'http://s.chncot.com/addons/zh_dianc/wxclientid.php?client_id='+this.clientId;
+    }
   },
   methods: {
     ...mapMutations(["login"]),
@@ -113,7 +118,7 @@ export default {
     }
   },
   components: {
-    AppFooter
+   AppFooter
   }
 };
 </script>
@@ -158,6 +163,11 @@ export default {
       width: 100px;
       border: 1px solid #bbb;
       border-top: none;
+    }
+    .qr-img{
+      display: block;
+      margin: 25px;
+      width: 250px;
     }
   }
 }

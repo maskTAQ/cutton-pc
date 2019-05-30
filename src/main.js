@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 
 console.table([
   ["version", "info"],
-  ["0.46", `替换mqtt地址`]
+  ["0.49", `修改样式`]
 ]);
 new Vue({
   router,
