@@ -1,4 +1,4 @@
-import { get } from './base';
+import { get,post } from './base';
 
 const login = (params) => {
     return get('Login', params);
@@ -116,7 +116,7 @@ export function getExcelList(params) {
 }
 //发布编辑后的excel数据
 export function publishExcelData(params) {
-    return get('CloudQuotePC', params);
+    return post('CloudQuotePC', params);
 }
 //获取客服列表
 export function getKFList(params) {

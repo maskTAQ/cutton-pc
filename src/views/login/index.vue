@@ -1,11 +1,22 @@
 <template>
-  <div>
+  <div class="container">
     <div class="login-container">
       <div class="content">
         <img :src="bgIcon" alt="bg" class="bg">
         <div class="qr">
+          <div class="tag-box">
+            <button :class="{active:activeQrType==='wx'}" @click="toggleQrType">微信</button>
+            <i>/</i>
+            <button :class="{active:activeQrType==='mp'}" @click="toggleQrType">小程序</button>
+          </div>
           <img :src="markIcon" alt class="mark">
-          <img :src="qrSrc" alt="" class="qr-img">
+          <img v-show="activeQrType === 'wx'" :src="src" alt class="qr-img">
+          <qrcode
+            class="mpQr"
+            v-show="activeQrType === 'mp'"
+            :value="JSON.stringify({clientId,type:'cotton'})"
+            :options="{ width: 280 }"
+          />
         </div>
       </div>
     </div>
@@ -14,7 +25,7 @@
 </template>
 
 <script>
-import Axios from 'axios';
+import Axios from "axios";
 import { clientId, Publisher } from "@/utils";
 import { mapMutations } from "vuex";
 import { Message } from "element-ui";
@@ -23,24 +34,35 @@ import Vue from "vue";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 import bgIcon from "@/assets/bg.png";
 import markIcon from "@/assets/mark.png";
+
 Vue.component(VueQrcode.name, VueQrcode);
 export default {
   name: "login",
   data() {
     return {
+      activeQrType: "wx",
       bgIcon,
       markIcon,
-      clientId
+      clientId,
+      src: ""
     };
   },
   mounted() {
     //   this.renderQr();
     //window.onload = this.renderQr;
     Publisher.on("login", this.handleLogin);
+    this.updateSrc();
   },
-  computed:{
-    qrSrc(){
-      return 'http://s.chncot.com/addons/zh_dianc/wxclientid.php?client_id='+this.clientId;
+  destroyed() {
+    this.unmounted = true;
+  },
+  watch: {
+    activeQrType(v) {
+      if (v === "mp") {
+        clearTimeout(this.timeout);
+      } else {
+        this.updateSrc();
+      }
     }
   },
   methods: {
@@ -115,15 +137,36 @@ export default {
           href: ""
         });
       }
+    },
+    updateSrc() {
+      this.src = `http://s.chncot.com/addons/zh_dianc/wxclientid.php?client_id=${
+        this.clientId
+      }&time=${Date.now()}`;
+      if (this.unmounted) {
+        clearTimeout(this.timeout);
+      } else {
+        this.timeout = setTimeout(this.updateSrc, 30000);
+      }
+    },
+    toggleQrType() {
+      if (this.activeQrType === "wx") {
+        this.activeQrType = "mp";
+      } else {
+        this.activeQrType = "wx";
+      }
     }
   },
   components: {
-   AppFooter
+    AppFooter
   }
 };
 </script>
 <style lang="scss" scoped>
+.container{
+  height: 100%;
+}
 .login-container {
+  height: calc(100% - 200px);
   background: #dfdede;
 }
 .content {
@@ -150,13 +193,36 @@ export default {
     border: 1px solid #bbb;
     overflow: hidden;
     background: #fff;
+    .tag-box {
+      position: absolute;
+      padding: 0 4px;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      i {
+        margin: 0 4px;
+      }
+      button {
+        border: none;
+        outline: none;
+        cursor: pointer;
+        &.active {
+          color: #3cbaf7;
+        }
+      }
+    }
+    .mpQr {
+      margin: 20px 10px;
+    }
     p {
       text-align: center;
       position: absolute;
       width: 100%;
       bottom: 10px;
     }
-    .mark{
+    .mark {
       position: absolute;
       top: 0;
       right: 20px;
@@ -164,7 +230,7 @@ export default {
       border: 1px solid #bbb;
       border-top: none;
     }
-    .qr-img{
+    .qr-img {
       display: block;
       margin: 25px;
       width: 250px;

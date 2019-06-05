@@ -108,14 +108,8 @@ export default {
         }
       ],
       descList: [
-        {
-          label: "库存",
-          key: "仓库"
-        },
-        {
-          label: "供应商",
-          key: "供应商"
-        }
+        { label: "轧花厂", key: "加工单位" },
+        { label: "供应商", key: "公司" }
       ]
     };
   },
@@ -154,7 +148,7 @@ export default {
   methods: {
     g(k) {
       const { map, data } = this;
-      return data[map[k]] || "-";
+      return data[map[k]] || "";
     },
     handleCheckedListChange() {
       const { checkedList, g, onChange } = this;
@@ -274,13 +268,14 @@ $main: #44bdf7;
 .desc-item {
   display: flex;
   flex-direction: row;
+  align-items: center;
   .label {
     font-size: 12px;
     color: #000;
   }
   .value {
     font-size: 14px;
-    color: #ccc;
+    color: #000;
   }
 }
 
@@ -289,8 +284,8 @@ $main: #44bdf7;
   flex-direction: row;
 }
 
-.bottom-left{
-  flex:1;
+.bottom-left {
+  flex: 1;
 }
 
 .bottom-text-box {
@@ -299,6 +294,9 @@ $main: #44bdf7;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+  overflow: hidden; //超出的文本隐藏
+  text-overflow: ellipsis; //溢出用省略号显示
+  white-space: nowrap; //溢出不换行
 }
 
 .bottom-text {
@@ -336,6 +334,7 @@ $main: #44bdf7;
 }
 
 .btn-group {
+  width: 40px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

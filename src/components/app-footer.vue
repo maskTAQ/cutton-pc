@@ -3,7 +3,7 @@
     <ul>
       <li v-for="item in links" :key="item">{{item}}</li>
     </ul>
-    <p>客服中心 联系我们CHNCOT@CHNCOT.COM 合作咨询 400-0000-0000 地址：江苏省xxxx</p>
+    <p>客服中心 联系我们CHNCOT@CHNCOT.COM 合作咨询0512-58707332 地址：江苏省苏州市张家港保税区福建路48号</p>
   </div>
 </template>
 <script>
@@ -13,8 +13,8 @@ export default {
     return {
       links: [
         "@2019-中棉网 CHNCOT",
-        "江苏丰润科技有限公司",
-        "苏ICP备14000575",
+        "苏州丰润科技有限公司",
+        "苏ICP备19001418号-1",
         "苏公安网备74182319381号"
       ]
     };

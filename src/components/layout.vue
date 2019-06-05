@@ -82,7 +82,7 @@
                   type="file"
                   v-if="isShowField(component.visible) && component.type === 'input-file'"
                   :key="component.label || componentI"
-                   :value="value[component.param]"
+                  :value="value[component.param]"
                   :name="component.param"
                   :handleChange="handleChange"
                   :data="updataParams"
@@ -110,7 +110,6 @@
   </div>
 </template>
 <script>
-
 import { getOfferList } from "@/apis";
 import { commonParmas } from "@/apis/base.js";
 import LayoutSlide from "./layout-slide";
@@ -149,10 +148,19 @@ export default {
   methods: {
     handleChange(key, value) {
       if (key.includes("批号")) {
+        
         const reg = /[^\d\.]/g;
+        const replaceDot = value.replace(reg, ",");
+        const reverse = replaceDot.split("").reverse();
+        const i = reverse.findIndex(item => !isNaN(parseInt(item)));
+        const v = reverse
+            .splice(i)
+            .reverse()
+            .join('');
+            console.log(replaceDot.split("").reverse(),reverse,'v')
         this.onChange({
           key,
-          value: value.replace(reg, ",")
+          value: v
         });
       } else {
         this.onChange({

@@ -47,7 +47,7 @@
       <div v-if="excel.status !== 'complete'" class="progress-box">
         <p v-show="excel.status !== 'getProgress'">{{excel.msg}}</p>
         <template v-show="excel.status === 'getProgress'">
-          <p>生成excel中...</p>
+          <p>生成表格中...</p>
           <el-progress type="circle" :percentage="excel.progress"></el-progress>
         </template>
       </div>
@@ -560,7 +560,8 @@ export default {
       return typeof n === "number" && !isNaN(n);
     },
     afterChange(v, type) {
-      if (type === "edit") {
+      console.log(v,type ,'type')
+      if (["edit",'CopyPaste.paste'].includes(type)) {
         const fullParams = this.getFullParams();
         const { colHeaders, tableData, isNumber } = this;
         const [rowI, colI] = v[0];

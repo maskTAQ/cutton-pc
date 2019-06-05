@@ -21,7 +21,10 @@ export default {
 </script>
 
 <style lang="scss">
-
+html,body,#app,.app-container,.app-content{
+  height: 100%;
+  min-height: 650px;
+}
 /* 
 #app {
   height: 100%;

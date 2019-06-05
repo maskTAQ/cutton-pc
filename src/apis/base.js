@@ -95,19 +95,24 @@ const commonParmas = {
     m: 'zh_dianc',
     sign: '0a382e9b7fa70f12a3301fa1ceb39ea0',
     openid: 'oc7pZ5K0I9Ild3lh6Zjj1Zu4TFec',
-    device:'6',
-    appname:'zmw'
+    device: '6',
+    appname: 'zmw'
 };
 /**
  * 请求
  * */
 const requestWrapper = (method, url, param = {}) => {
+    let u = ''
     const params =
         method === "post" ? { data: qs.stringify(param) } : { params: Object.assign({ do: url }, commonParmas, param) };
+    if (method === 'post') {
+        u += '?'+qs.stringify(Object.assign({ do: url }, commonParmas));
+        console.log(u, 'u');
+    }
 
     return Axios.request({
         baseURL: url.includes('http') ? '' : host,
-        url: '',
+        url: u,
         method,
         timeout: 600000,
         ...params
@@ -159,4 +164,4 @@ const get = (url, params = {}, { loading = true, handleCatch = true } = {}) => {
 };
 
 
-export { post, get, host ,commonParmas};
+export { post, get, host, commonParmas };

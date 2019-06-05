@@ -227,13 +227,17 @@ $main: #44bdf7;
   .desc-item {
     display: flex;
     flex-direction: row;
+    align-items: center;
     .label {
       font-size: 15px;
       color: #000;
     }
     .value {
       font-size: 14px;
-      color: #ccc;
+      color: #000;
+      overflow: hidden; //超出的文本隐藏
+      text-overflow: ellipsis; //溢出用省略号显示
+      white-space: nowrap; //溢出不换行
     }
   }
 
@@ -241,8 +245,9 @@ $main: #44bdf7;
     display: flex;
     flex-direction: row;
   }
-
-  .bottom-left,
+  .bottom-left{
+    width: 70%;
+  }
   .bottom-right {
     flex: 1;
   }
@@ -258,6 +263,9 @@ $main: #44bdf7;
   .bottom-text {
     font-size: 15px;
     color: #000;
+    overflow: hidden; //超出的文本隐藏
+    text-overflow: ellipsis; //溢出用省略号显示
+    white-space: nowrap; //溢出不换行
   }
 
   .bottom-right-bottom {

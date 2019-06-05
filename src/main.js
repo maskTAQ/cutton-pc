@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 
 console.table([
   ["version", "info"],
-  ["0.49", `修改样式`]
+  ["0.59", `1修改文档的问题`]
 ]);
 new Vue({
   router,
