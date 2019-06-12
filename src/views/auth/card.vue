@@ -38,9 +38,16 @@
           v-if="type!=='img'"
           :class="{'input-label': hasInput,'img-label': type === 'img'}"
         >{{item.label}}</p>
-        <div :class="{'input-box': hasInput && canInput,'img-content':isImg}">
+        <div :class="{'input-box': hasInput && item.label !== '单位地址','img-content':isImg}">
+          <el-cascader
+            v-if="canInput && hasInput && item.label === '单位地址'"
+            size="small"
+            :options="options"
+            v-model="selectedOptions"
+            @change="handleCityChange"
+          ></el-cascader>
           <input
-            v-if="canInput && hasInput"
+            v-if="canInput && hasInput && item.label !== '单位地址'"
             @input="handleChange(item.key,$event)"
             :value="data[item.key]"
             type="text"
@@ -56,6 +63,7 @@
 </template>
 <script>
 import Axios from "axios";
+import { CodeToText, regionData } from "element-china-area-data";
 import closeIcon from "./close.png";
 export default {
   props: [
@@ -72,6 +80,8 @@ export default {
   name: "card",
   data() {
     return {
+      options: regionData,
+      selectedOptions: [],
       closeIcon
     };
   },
@@ -96,6 +106,12 @@ export default {
     }
   },
   methods: {
+    handleCityChange(v) {
+      this.onChange({
+        key: "cityValue",
+        value: v.map(code => CodeToText[code])
+      });
+    },
     handleChange(key, e) {
       const { value } = e.target;
       this.onChange({
@@ -200,8 +216,8 @@ $main: #44bdf7;
 .input-box {
   flex: 1;
   height: 100%;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+ 
+  border-bottom: 1px solid #bdb6b6;
   input {
     height: 100%;
     flex: 1;

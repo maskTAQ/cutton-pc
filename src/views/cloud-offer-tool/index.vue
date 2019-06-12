@@ -79,6 +79,7 @@
             :columnSorting="true"
             :observeChanges="true"
             :afterChange="afterChange"
+            :contextMenu="contextMenu"
             width="100%"
             height="100%"
             ref="hotTable"
@@ -133,6 +134,15 @@ export default {
       columns: [],
       tableData: [],
       params: {},
+      contextMenu: {
+        items: {
+          
+          copy: {
+            name: "复制"
+          },
+          // 
+        }
+      },
       loading: false,
       excel: {
         status: "init", //upload  getProgress getData complete error
@@ -259,9 +269,9 @@ export default {
     },
     nextStep() {
       const { status, data } = this.layout;
-      
+
       if (status === "success") {
-        if (!["新疆棉", "拍储",'地产棉'].includes(this.type)) {
+        if (!["新疆棉", "拍储", "地产棉"].includes(this.type)) {
           return this.uploadExcelData();
         }
         const { id } = this.data.user.data;
@@ -560,76 +570,95 @@ export default {
       return typeof n === "number" && !isNaN(n);
     },
     afterChange(v, type) {
-      console.log(v,type ,'type')
-      if (["edit",'CopyPaste.paste'].includes(type)) {
+      if (["edit", "CopyPaste.paste"].includes(type)) {
         const fullParams = this.getFullParams();
         const { colHeaders, tableData, isNumber } = this;
-        const [rowI, colI] = v[0];
         const nextV = _.cloneDeep(tableData);
-        if (fullParams["报价类型"] === "一口价") {
-          let expression =
-            fullParams["重量类型"] === "公重"
-              ? "公重/公重报价*毛重=毛重报价"
-              : "毛重/毛重报价*公重=公重报价";
-          const [e, D] = expression.split("=");
-          const [
-            all,
-            A,
-            B,
-            C
-          ] = /([\u4e00-\u9fa5]+)\/([\u4e00-\u9fa5]+)\*([\u4e00-\u9fa5]+)/gm.exec(
-            e
-          );
-          const AI = colHeaders.indexOf(A);
-          const BI = colHeaders.indexOf(B);
-          const CI = colHeaders.indexOf(C);
-          const DI = colHeaders.indexOf(D);
-          if (
-            isNumber(AI) &&
-            isNumber(BI) &&
-            isNumber(CI) &&
-            [AI, BI, CI].includes(colI)
-          ) {
-            const row = nextV[rowI];
-            const aValue = Number(row[AI]);
-            const bValue = Number(row[BI]);
-            const cValue = Number(row[CI]);
-            if (
-              this.isNumber(aValue) &&
-              this.isNumber(bValue) &&
-              this.isNumber(cValue)
-            ) {
-              if (A === "毛重") {
-                row[DI] = (aValue / bValue) * cValue;
+        v.forEach(item => {
+          const [rowI, colI] = item;
+
+          if (fullParams["报价类型"] === "一口价") {
+            let expressionList =
+              fullParams["重量类型"] === "公重"
+                ? ["报价/公重*毛重=毛重报价", "报价=公重报价"]
+                : ["报价/毛重*公重=公重报价", "报价=毛重报价"];
+
+            expressionList.forEach(expression => {
+              const [e, D] = expression.split("=");
+              if (e === "报价") {
+                const A = "报价";
+                const AI = colHeaders.indexOf(A);
+
+                const DI = colHeaders.indexOf(D);
+
+                if (isNumber(AI) && AI === colI) {
+                  const row = nextV[rowI];
+                  row[DI] = parseInt(row[AI]).toFixed(0);
+                }
               } else {
-                row[DI] = (aValue / bValue) * cValue;
+                const [
+                  all,
+                  A,
+                  B,
+                  C
+                ] = /([\u4e00-\u9fa5]+)\/([\u4e00-\u9fa5]+)\*([\u4e00-\u9fa5]+)/gm.exec(
+                  e
+                );
+                const AI = colHeaders.indexOf(A);
+                const BI = colHeaders.indexOf(B);
+                const CI = colHeaders.indexOf(C);
+                const DI = colHeaders.indexOf(D);
+
+                if (
+                  isNumber(AI) &&
+                  isNumber(BI) &&
+                  isNumber(CI) &&
+                  [AI, BI, CI].includes(colI)
+                ) {
+                  const row = nextV[rowI];
+                  const aValue = Number(row[AI]);
+                  const bValue = Number(row[BI]);
+                  const cValue = Number(row[CI]);
+                  if (
+                    this.isNumber(aValue) &&
+                    this.isNumber(bValue) &&
+                    this.isNumber(cValue)
+                  ) {
+                    if (A === "毛重") {
+                      row[DI] = parseInt((aValue / bValue) * cValue).toFixed(0);
+                    } else {
+                      row[DI] = parseInt((aValue / bValue) * cValue).toFixed(0);
+                    }
+                  } else {
+                    row[DI] = "--";
+                  }
+                  // console.log(tableData[rowI],row, " row");
+                }
               }
-            } else {
-              row[DI] = "--";
-            }
-            // console.log(tableData[rowI],row, " row");
+            });
           }
-        }
-        if (fullParams["报价类型"] === "基差") {
-          const expression = "基差值+基差升贴水=参考价";
-          const [e, D] = expression.split("=");
-          if (e.includes("+")) {
-            const [A, B] = e.split("+");
-            const AI = colHeaders.indexOf(A);
-            const BI = colHeaders.indexOf(B);
-            const DI = colHeaders.indexOf(D);
-            if ([AI, BI].includes(colI)) {
-              const row = nextV[rowI];
-              const aValue = Number(row[AI]);
-              const bValue = Number(row[BI]);
-              if (this.isNumber(aValue) && this.isNumber(bValue)) {
-                row[DI] = aValue + bValue;
-              } else {
-                row[DI] = "--";
+          if (fullParams["报价类型"] === "基差") {
+            const expression = "基差值+基差升贴水=参考价";
+            const [e, D] = expression.split("=");
+            if (e.includes("+")) {
+              const [A, B] = e.split("+");
+              const AI = colHeaders.indexOf(A);
+              const BI = colHeaders.indexOf(B);
+              const DI = colHeaders.indexOf(D);
+              if ([AI, BI].includes(colI)) {
+                const row = nextV[rowI];
+                const aValue = Number(row[AI]);
+                const bValue = Number(row[BI]);
+                if (this.isNumber(aValue) && this.isNumber(bValue)) {
+                  row[DI] = aValue + bValue;
+                } else {
+                  row[DI] = "--";
+                }
               }
             }
           }
-        }
+        });
+        console.log(nextV, "nextV");
         this.updateHotData({ data: nextV });
       }
     },

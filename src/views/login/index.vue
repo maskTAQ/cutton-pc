@@ -142,11 +142,6 @@ export default {
       this.src = `http://s.chncot.com/addons/zh_dianc/wxclientid.php?client_id=${
         this.clientId
       }&time=${Date.now()}`;
-      if (this.unmounted) {
-        clearTimeout(this.timeout);
-      } else {
-        this.timeout = setTimeout(this.updateSrc, 30000);
-      }
     },
     toggleQrType() {
       if (this.activeQrType === "wx") {

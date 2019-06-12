@@ -90,27 +90,31 @@ export default {
         },
         {
           label: "手机号码",
-          placeholder: "请输入负责人",
+          placeholder: "请输入手机号码",
           key: "tel"
         },
         {
           label: "行业",
-          placeholder: "请输入负责人",
+          placeholder: "请输入行业",
           key: "sfz_img2"
         },
         {
           label: "企业名称",
-          placeholder: "请输入负责人",
+          placeholder: "请输入企业名称",
           key: "store_name"
         },
         {
           label: "企业代码(执照号)",
-          placeholder: "请输入负责人",
+          placeholder: "请输入企业代码(执照号)",
           key: "sp_img"
         },
         {
           label: "单位地址",
-          placeholder: "请输入负责人",
+          placeholder: "请输入单位地址"
+        },
+        {
+          label: "详细地址",
+          placeholder: "请输入详细地址",
           key: "address"
         }
       ],
@@ -179,7 +183,7 @@ export default {
       // this.kfInfoList = next.concat(kfInfoGroup);
       const { id } = this.data.user.data;
       addKF({
-        '用户ID': id,
+        用户ID: id,
         ...this.newAddKfInfo
       }).then(res => {
         Message.success("添加成功");
@@ -187,7 +191,13 @@ export default {
       });
     },
     submit() {
-      authInfo({ ...this.params, user_id: this.data.user.data.id }).then(
+      const { params } = this;
+      const clone = { ...params };
+      clone.address = (clone.cityValue || []).join('-') + clone.address;
+      delete clone.cityValue;
+      //this.params.address = this;
+      console.log(clone);
+      authInfo({ ...clone, user_id: this.data.user.data.id }).then(
         res => {
           Message.success("认证成功");
           this.getAuthInfo();
@@ -217,8 +227,8 @@ export default {
     deleteKf(i) {
       const { id } = this.data.user.data;
       deleteKF({
-        '用户ID': id,
-        "客服列表的主键": i
+        用户ID: id,
+        客服列表的主键: i
       }).then(res => {
         this.getKFList();
       });

@@ -1,21 +1,20 @@
 import { Message } from 'element-ui';
 import MQTT from './paho-mqtt';
 import { clientId, Publisher } from '@/utils';
-import { type } from 'os';
 const pcClientId = clientId;
-
+console.log(pcClientId,'pcClientId');
 let serverStatus = {
     connected: false,
     msg: '初始化'
 };
-var client = new MQTT.Client("s.chncot.com", 8083, pcClientId);//建立客户端实例  
+var client = new MQTT.Client("s.chncot.com", 443, pcClientId);//建立客户端实例  
 
 function connect() {
     serverStatus = {
         connected: false,
         msg: '连接中'
     };
-    client.connect({ onSuccess: onConnect });//连接服务器并注册连接成功处理事件  
+    client.connect({ onSuccess: onConnect,useSSL:true });//连接服务器并注册连接成功处理事件  
 }
 connect();
 function onConnect() {
@@ -23,6 +22,7 @@ function onConnect() {
         connected: true,
         msg: '连接成功'
     };
+    console.log(`pc：连接成功，订阅${pcClientId}`);
     client.subscribe(pcClientId);//订阅主题  
 }
 

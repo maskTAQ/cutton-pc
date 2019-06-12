@@ -10,6 +10,7 @@
     "@chenfengyuan/vue-qrcode": "^1.0.0",
     "@handsontable/vue": "^4.0.0",
     "axios": "^0.18.0",
+    "element-china-area-data": "^4.1.2",
     "element-ui": "^2.6.3",
     "handsontable": "^7.0.0",
     "immutability-helper": "^3.0.0",

@@ -150,7 +150,7 @@ export default {
       if (key.includes("批号")) {
         
         const reg = /[^\d\.]/g;
-        const replaceDot = value.replace(reg, ",");
+        const replaceDot = value.replace(reg, ",").replace(/,+/,',');
         const reverse = replaceDot.split("").reverse();
         const i = reverse.findIndex(item => !isNaN(parseInt(item)));
         const v = reverse

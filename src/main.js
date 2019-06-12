@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 
 console.table([
   ["version", "info"],
-  ["0.59", `1修改文档的问题`]
+  ["0.66", `1.修复mqtt bug`]
 ]);
 new Vue({
   router,
