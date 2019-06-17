@@ -147,17 +147,18 @@ export default {
   },
   methods: {
     handleChange(key, value) {
+     
       if (key.includes("批号")) {
         
-        const reg = /[^\d\.]/g;
-        const replaceDot = value.replace(reg, ",").replace(/,+/,',');
+        const reg = /[^\d\.]/gm;
+        const replaceDot = value.replace(reg, ",").replace(/,+/gm,',');
         const reverse = replaceDot.split("").reverse();
         const i = reverse.findIndex(item => !isNaN(parseInt(item)));
         const v = reverse
             .splice(i)
             .reverse()
             .join('');
-            console.log(replaceDot.split("").reverse(),reverse,'v')
+            
         this.onChange({
           key,
           value: v

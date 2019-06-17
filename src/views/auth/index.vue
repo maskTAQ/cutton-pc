@@ -95,6 +95,21 @@ export default {
         },
         {
           label: "行业",
+          type: "select",
+          options: [
+            {
+              value: "扎花厂",
+              label: "扎花厂"
+            },
+            {
+              value: "贸易商",
+              label: "贸易商"
+            },
+            {
+              value: "纺织厂",
+              label: "纺织厂"
+            }
+          ],
           placeholder: "请输入行业",
           key: "sfz_img2"
         },
@@ -156,7 +171,6 @@ export default {
             id: item[key["主键"]]
           });
         });
-        console.log(result, "result");
         return result;
       } else {
         return [];
@@ -193,16 +207,14 @@ export default {
     submit() {
       const { params } = this;
       const clone = { ...params };
-      clone.address = (clone.cityValue || []).join('-') + clone.address;
+      clone.address = (clone.cityValue || []).join("-") + clone.address;
       delete clone.cityValue;
       //this.params.address = this;
       console.log(clone);
-      authInfo({ ...clone, user_id: this.data.user.data.id }).then(
-        res => {
-          Message.success("认证成功");
-          this.getAuthInfo();
-        }
-      );
+      authInfo({ ...clone, user_id: this.data.user.data.id }).then(res => {
+        Message.success("认证成功");
+        this.getAuthInfo();
+      });
     },
     getAuthInfo() {
       const { id } = this.data.user.data;

@@ -11,7 +11,7 @@ const data = {
   websiteName: "中棉网",
   website: "www.chncot.com",
   websiteDesc: "聚万千零差价无中介棉花资源信息",
-  companyName: "江苏丰润科技有限公司",
+  companyName: "苏州丰润科技有限公司",
   contact: "联系人:王先生",
   contactMobile: "联系电话:13888888888",
   gzjgLabel: "公重价格:",

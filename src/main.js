@@ -12,9 +12,9 @@ Vue.use(iView);
 
 Vue.config.productionTip = false
 
-console.table([
+console.log([
   ["version", "info"],
-  ["0.66", `1.修复mqtt bug`]
+  ["0.71", `1.多匹配`]
 ]);
 new Vue({
   router,

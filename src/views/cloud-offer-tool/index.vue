@@ -136,9 +136,15 @@ export default {
       params: {},
       contextMenu: {
         items: {
-          
+         
           copy: {
             name: "复制"
+          },
+           pa: {
+            name: "粘贴",
+            callback(){
+              alert('请使用Ctrl+v粘贴');
+            }
           },
           // 
         }

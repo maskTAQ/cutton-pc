@@ -47,13 +47,20 @@
             @change="handleCityChange"
           ></el-cascader>
           <input
-            v-if="canInput && hasInput && item.label !== '单位地址'"
+            v-if="canInput && hasInput && item.label !== '单位地址'&& item.type !== 'select'"
             @input="handleChange(item.key,$event)"
             :value="data[item.key]"
             type="text"
             class="input"
             :placeholder="item.placeholder||'请输入'"
           >
+          <Select
+            v-if="canInput && hasInput && item.type === 'select'"
+            @on-change="handleSelectChange(item.key,$event)"
+            :value="data[item.key]"
+          >
+            <Option v-for="i in item.options" :value="i.value" :key="i.value">{{ i.label }}</Option>
+          </Select>
           <p v-if="!canInput && hasInput" class="text">{{data[item.key] || '未填写!'}}</p>
         </div>
       </div>
@@ -106,6 +113,9 @@ export default {
     }
   },
   methods: {
+    c(...v) {
+      console.log(v, "v");
+    },
     handleCityChange(v) {
       this.onChange({
         key: "cityValue",
@@ -114,6 +124,16 @@ export default {
     },
     handleChange(key, e) {
       const { value } = e.target;
+      this.onChange({
+        key,
+        value
+      });
+    },
+    handleSelectChange(key, value) {
+      console.log({
+        key,
+        value
+      },'-')
       this.onChange({
         key,
         value
@@ -216,7 +236,7 @@ $main: #44bdf7;
 .input-box {
   flex: 1;
   height: 100%;
- 
+
   border-bottom: 1px solid #bdb6b6;
   input {
     height: 100%;
