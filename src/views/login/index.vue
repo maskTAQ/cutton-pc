@@ -4,7 +4,7 @@
       <div class="content">
         <img :src="bgIcon" alt="bg" class="bg">
         <div class="qr">
-          <div class="tag-box">
+          <div class="tag-box" v-if="false">
             <button :class="{active:activeQrType==='wx'}" @click="toggleQrType">微信</button>
             <i>/</i>
             <button :class="{active:activeQrType==='mp'}" @click="toggleQrType">小程序</button>

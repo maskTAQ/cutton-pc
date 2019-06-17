@@ -752,6 +752,7 @@ export default {
       const hot = this.$refs.hotTable;
       hot.hotInstance.getPlugin("exportFile").downloadFile("csv", {
         filename: "中棉网",
+        fileExtension:'xlsx',
         columnHeaders: true,
         range: [0, 1]
       });

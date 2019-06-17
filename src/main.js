@@ -12,10 +12,7 @@ Vue.use(iView);
 
 Vue.config.productionTip = false
 
-console.log([
-  ["version", "info"],
-  ["0.71", `1.多匹配`]
-]);
+console.log('v0.73 修改样式');
 new Vue({
   router,
   store,

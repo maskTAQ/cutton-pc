@@ -1,8 +1,8 @@
 <template>
   <div class="container" v-if="visible">
     <ul>
-      <li v-for="item in navList" :key="item.path" :class="{ active: item.path === path }">
-        <router-link :to="item">{{item.label}}</router-link>
+      <li v-for="item in navList" :key="item.label" :class="{ active: item.path.includes(path) }">
+        <router-link :to="item.path[0]">{{item.label}}</router-link>
         <div class="border"></div>
       </li>
     </ul>
@@ -14,9 +14,9 @@ export default {
   data() {
     return {
       navList: [
-        { label: "首页", path: "/" },
-        { label: "云报价工具", path: "/cloud-offer-tool" },
-        { label: "认证信息", path: "/auth" }
+        //{ label: "首页", path: "/" },
+        { label: "云报价工具", path: ["/cloud-offer-tool",'/'] },
+        { label: "认证信息", path: ["/auth"] }
         // "棉花超时",
         // "云报价工具",
         // "智能供需",
