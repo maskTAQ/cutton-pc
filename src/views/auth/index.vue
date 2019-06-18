@@ -98,8 +98,8 @@ export default {
           type: "select",
           options: [
             {
-              value: "扎花厂",
-              label: "扎花厂"
+              value: "轧花厂",
+              label: "轧花厂"
             },
             {
               value: "贸易商",

@@ -119,7 +119,7 @@ import {
   getExcelList,
   publishExcelData
 } from "@/apis";
-import { productTypesValue } from "@/constants";
+import { productTypesValue,authStatusMap } from "@/constants";
 import { send } from "@/apis/ws";
 const disabledColumns = ["毛重报价", "公重报价"]; //"参考价", "报价", "毛重报价", "公重报价"
 export default {
@@ -136,17 +136,16 @@ export default {
       params: {},
       contextMenu: {
         items: {
-         
           copy: {
             name: "复制"
           },
-           pa: {
+          pa: {
             name: "粘贴",
-            callback(){
-              alert('请使用Ctrl+v粘贴');
+            callback() {
+              alert("请使用Ctrl+v粘贴");
             }
-          },
-          // 
+          }
+          //
         }
       },
       loading: false,
@@ -336,7 +335,7 @@ export default {
         })
         .catch(e => {
           this.setExcelStatus({
-            status: "error",
+            status: "init",
             msg: "上传excel数据失败"
           });
         });
@@ -497,7 +496,41 @@ export default {
       });
       this.init();
     },
+    checkAuth() {
+      console.log(this.data.auth,'this.data.auth')
+      const { status, data } = this.data.auth;
+      switch (status) {
+        case "success": {
+          if (data.state === "2") {
+            return {
+              ok: true
+            };
+          } else {
+            return {
+              ok: false,
+              msg: `认证状态:${authStatusMap[data.state]},请先移步小程序完成认证！`
+            };
+          }
+        }
+        case "loading":
+          return {
+            ok: false,
+            msg: "获取信息中..."
+          };
+
+        case "error":
+          return {
+            ok: false,
+            msg: "获取信息失败"
+          };
+      }
+    },
     submit() {
+      console.log(this.checkAuth(),'this.checkAuth()')
+      const { ok, msg } = this.checkAuth();
+      if (!ok) {
+        return this.$Message.error(msg);
+      }
       const { data, hotTableConfigs } = this.excel;
       const nextExcelData = _.cloneDeep(data);
       nextExcelData.forEach((d, i) => {
@@ -520,7 +553,7 @@ export default {
           this.cleanCache();
         })
         .catch(e => {
-          Message.error("发布失败");
+          Message.error(String(e));
         });
       // doSubmit(
       //   data.do,
@@ -752,7 +785,7 @@ export default {
       const hot = this.$refs.hotTable;
       hot.hotInstance.getPlugin("exportFile").downloadFile("csv", {
         filename: "中棉网",
-        fileExtension:'xlsx',
+        fileExtension: "xlsx",
         columnHeaders: true,
         range: [0, 1]
       });

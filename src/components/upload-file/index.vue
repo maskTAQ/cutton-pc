@@ -176,7 +176,7 @@ export default {
           const key = this.name;
           if (code === 1 && data["上传结果"]) {
             if (data["上传结果"]["错误批号"]) {
-              this.$message.error(data["上传结果"]["错误批号"]);
+              this.$message.error(message);
             }
             let prev = this.value ? this.value.split(",") : [];
             prev.push(data["上传结果"]["仓单批号"]);

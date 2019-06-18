@@ -12,7 +12,7 @@ Vue.use(iView);
 
 Vue.config.productionTip = false
 
-console.log('v0.73 修改样式');
+console.log('v0.76 显示msg');
 new Vue({
   router,
   store,
